@@ -50,4 +50,6 @@ is_open :: proc() -> bool {
 frame :: proc() {
     glfw.SwapBuffers(window)
     glfw.PollEvents()
+
+    width, height = glfw.GetWindowSize(window)
 }

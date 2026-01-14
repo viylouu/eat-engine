@@ -14,3 +14,8 @@ init :: proc() {
 stop :: proc() {
     
 }
+
+
+frame :: proc() {
+    gl.Viewport(0,0, eaw.width, eaw.height)
+}

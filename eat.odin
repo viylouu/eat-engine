@@ -23,6 +23,7 @@ frame :: proc() -> bool {
     if !eaw.is_open() do return false
 
     eaw.frame()
+    ear.frame()
 
     return true
 }
