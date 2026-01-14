@@ -18,6 +18,7 @@ init :: proc(
     glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
     glfw.WindowHint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
+    glfw.WindowHint(glfw.FLOATING, glfw.TRUE)
     glfw.WindowHint(glfw.RESIZABLE, glfw.TRUE)
 
     width = w
