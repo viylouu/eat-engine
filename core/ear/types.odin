@@ -6,6 +6,8 @@ import gl "vendor:OpenGL"
 
 Pipeline :: struct{
     id: u32,
+    vao: u32,
+
     desc: PipelineDesc,
 }
 
@@ -21,10 +23,9 @@ ShaderDesc :: struct{
 create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
     pln := Pipeline{ desc = desc }
 
-    vsh: u32
-    vsh = gl.CreateShader(gl.VERTEX_SHADER)
+    vsh := gl.CreateShader(gl.VERTEX_SHADER)
         defer gl.DeleteShader(vsh)
-    gl.ShaderSource(vsh, 1, desc.vertex.source, nil)
+    gl.ShaderSource(vsh, 1, pln.desc.vertex.source, nil)
     gl.CompileShader(vsh)
 
     succ: i32
@@ -38,10 +39,9 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
         assert(false)
     }
 
-    fsh: u32
-    fsh = gl.CreateShader(gl.FRAGMENT_SHADER)
+    fsh := gl.CreateShader(gl.FRAGMENT_SHADER)
         defer gl.DeleteShader(fsh)
-    gl.ShaderSource(fsh, 1, desc.fragment.source, nil)
+    gl.ShaderSource(fsh, 1, pln.desc.fragment.source, nil)
     gl.CompileShader(fsh)
 
     gl.GetShaderiv(fsh, gl.COMPILE_STATUS, &succ)
@@ -68,6 +68,8 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
         assert(false)
     }
 
+    gl.GenVertexArrays(1, &pln.vao)
+
     return pln
 }
 
@@ -75,3 +77,7 @@ delete_pipeline :: proc(pln: Pipeline) {
     gl.DeleteProgram(pln.id)
 }
 
+bind_pipeline :: proc(pln: Pipeline) {
+    gl.UseProgram(pln.id)
+    gl.BindVertexArray(pln.vao)
+}
