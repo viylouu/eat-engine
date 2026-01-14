@@ -9,15 +9,11 @@ init :: proc(
     width, height: i32,
     title: cstring,
 ) {
-    fmt.println("init")
-
     eaw.init(width,height, title)
     ear.init()
 }
 
 stop :: proc() {
-    fmt.println("stop")
-
     ear.stop()
     eaw.stop()
 }
