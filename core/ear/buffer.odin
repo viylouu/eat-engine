@@ -21,6 +21,7 @@ BufferDesc :: struct{
 
 BufferType :: enum{
     Uniform,
+    Storage,
 }
 
 BufferUsage :: enum{
@@ -28,8 +29,8 @@ BufferUsage :: enum{
     Static
 }
 
-create_buffer :: proc(desc: BufferDesc) -> Buffer {
-    buf := Buffer{ desc = desc }
+create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32) -> Buffer {
+    buf := Buffer{ desc = desc, data = db, size = size, prev_size = size }
 
     gl.GenBuffers(1, &buf.id)
 
@@ -56,12 +57,12 @@ bind_buffer :: proc(buffer: Buffer, slot: u32) {
 
     gl.BindBuffer(targ, buffer.id)
 
-    if buffer.desc.type == .Uniform {
+    if buffer.desc.type == .Uniform || buffer.desc.type == .Storage {
         gl.BindBufferBase(targ, slot, buffer.id) }
 }
 
 update_buffer :: proc(buffer: ^Buffer) {
-    assert(buffer.desc.usage == .Dynamic)
+    if buffer.prev_size != 0 do assert(buffer.desc.usage == .Dynamic)
 
     targ := TYPECONV_buffer_type(buffer.desc.type)
 
@@ -81,6 +82,8 @@ TYPECONV_buffer_type :: proc(type: BufferType) -> u32 {
     switch type {
     case .Uniform:
         return gl.UNIFORM_BUFFER
+    case .Storage:
+        return gl.SHADER_STORAGE_BUFFER
     }
 
     assert(false)

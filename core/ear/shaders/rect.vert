@@ -6,10 +6,10 @@ struct InstData {
     vec4 col;
 };
 
-const vec2 verts[6] = vec2[](
+const vec2 verts[6] = vec2[6](
         vec2(0,0), vec2(1,0),
         vec2(1,1), vec2(1,1),
-        vec2(0,1), vec2(0,0),
+        vec2(0,1), vec2(0,0)
     );
 
 layout(std430, binding = 0) buffer ssbo {
