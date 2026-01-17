@@ -4,6 +4,7 @@ struct InstData {
     vec2 pos;
     vec2 size;
     vec4 col;
+    vec4 samp;
 };
 
 const vec2 verts[6] = vec2[6](
@@ -21,6 +22,7 @@ layout(std140, binding = 1) uniform uni {
 };
 
 out vec2 fUv;
+out vec4 fSample;
 flat out vec4 fCol;
 
 void main() {
@@ -30,5 +32,6 @@ void main() {
     gl_Position = proj * vec4(vert * inst.size + inst.pos, 0,1);
 
     fUv = vert;
+    fSample = inst.samp;
     fCol = inst.col;
 }

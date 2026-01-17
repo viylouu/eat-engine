@@ -45,7 +45,7 @@ tex_rend: struct{
     ubo: Buffer,
         ubo_d: struct{ proj: glsl.mat4 },
     ssbo: Buffer,
-        ssbo_d: [4096]struct{ pos: [2]f32, size: [2]f32, col: [4]f32 },
+        ssbo_d: [4096]struct{ pos: [2]f32, size: [2]f32, col: [4]f32, samp: [4]f32 },
         ssbo_i: u32,
     cur_tex: ^Texture,
 } = {}
