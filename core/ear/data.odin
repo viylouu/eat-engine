@@ -4,6 +4,7 @@ import "core:math/linalg/glsl"
 
 proj: glsl.mat4
 
+@private
 rect_rend: struct{
     pln: Pipeline,
     ubo: Buffer,
@@ -13,6 +14,7 @@ rect_rend: struct{
         ssbo_i: u32,
 } = {}
 
+@private
 rect_rend_create :: proc() {
     vert := #load("shaders/rect.vert", cstring)
     frag := #load("shaders/rect.frag", cstring)
@@ -33,6 +35,7 @@ rect_rend_create :: proc() {
     }, &rect_rend.ssbo_d, size_of(rect_rend.ssbo_d))
 }
 
+@private
 rect_rend_delete :: proc() {
     delete_buffer(rect_rend.ssbo)
     delete_buffer(rect_rend.ubo)
@@ -40,6 +43,7 @@ rect_rend_delete :: proc() {
 }
 
 
+@private
 tex_rend: struct{
     pln: Pipeline,
     ubo: Buffer,
@@ -50,6 +54,7 @@ tex_rend: struct{
     cur_tex: ^Texture,
 } = {}
 
+@private
 tex_rend_create :: proc() {
     vert := #load("shaders/tex.vert", cstring)
     frag := #load("shaders/tex.frag", cstring)
@@ -70,6 +75,7 @@ tex_rend_create :: proc() {
     }, &tex_rend.ssbo_d, size_of(tex_rend.ssbo_d))
 }
 
+@private
 tex_rend_delete :: proc() {
     delete_buffer(tex_rend.ssbo)
     delete_buffer(tex_rend.ubo)
