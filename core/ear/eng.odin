@@ -13,9 +13,11 @@ init :: proc() {
 
 
     rect_rend_create()
+    tex_rend_create()
 }
 
 stop :: proc() {
+    tex_rend_delete()
     rect_rend_delete()
 }
 
