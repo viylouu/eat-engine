@@ -78,6 +78,7 @@ update_buffer :: proc(buffer: ^Buffer) {
 
 
 
+@private
 TYPECONV_buffer_type :: proc(type: BufferType) -> u32 {
     switch type {
     case .Uniform:
@@ -90,6 +91,7 @@ TYPECONV_buffer_type :: proc(type: BufferType) -> u32 {
     return 0
 }
 
+@private
 TYPECONV_buffer_usage :: proc(usage: BufferUsage) -> u32 {
     switch usage {
     case .Dynamic:

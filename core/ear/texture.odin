@@ -78,6 +78,7 @@ bind_texture :: proc(tex: Texture, slot: u32) {
 
 
 
+@private
 TYPECONV_texture_filter :: proc(filter: TextureFilter) -> i32 {
     switch filter {
     case .Nearest:
