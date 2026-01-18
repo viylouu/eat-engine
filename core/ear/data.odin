@@ -42,6 +42,24 @@ rect_rend_delete :: proc() {
     delete_pipeline(rect_rend.pln)
 }
 
+@private
+flush_rect :: proc() {
+    if rect_rend.ssbo_i == 0 do return
+
+    rect_rend.ubo_d.proj = proj
+
+    update_buffer(&rect_rend.ubo)
+    update_buffer(&rect_rend.ssbo)
+
+    bind_pipeline(rect_rend.pln)
+    bind_buffer(rect_rend.ssbo, 0)
+    bind_buffer(rect_rend.ubo, 1)
+
+    draw(6, i32(rect_rend.ssbo_i))
+
+    rect_rend.ssbo_i = 0
+}
+
 
 @private
 tex_rend: struct{
@@ -80,4 +98,23 @@ tex_rend_delete :: proc() {
     delete_buffer(tex_rend.ssbo)
     delete_buffer(tex_rend.ubo)
     delete_pipeline(tex_rend.pln)
+}
+
+@private
+flush_tex :: proc() {
+    if tex_rend.ssbo_i == 0 do return
+
+    tex_rend.ubo_d.proj = proj
+
+    update_buffer(&tex_rend.ubo)
+    update_buffer(&tex_rend.ssbo)
+
+    bind_pipeline(tex_rend.pln)
+    bind_buffer(tex_rend.ssbo, 0)
+    bind_buffer(tex_rend.ubo, 1)
+    bind_texture(tex_rend.cur_tex^, 0)
+
+    draw(6, i32(tex_rend.ssbo_i))
+
+    tex_rend.ssbo_i = 0
 }

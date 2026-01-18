@@ -3,9 +3,10 @@ package main
 import "core:fmt"
 import eat "../../"
 
+import "../../core/eaw"
 import "../../core/ear"
 
-vtx: cstring = `
+/*vtx: cstring = `
 #version 330 core
 
 const vec2 verts[6] = vec2[](
@@ -34,7 +35,7 @@ out vec4 oCol;
 void main() {
     oCol = texture(tex, fUv);
 }
-`
+`*/
 
 main :: proc() {
     eat.init(
@@ -43,11 +44,11 @@ main :: proc() {
         )
     defer eat.stop()
 
-    pln := ear.create_pipeline({
+    /*pln := ear.create_pipeline({
             vertex = { source = &vtx },
             fragment = { source = &frag },
         })
-    defer ear.delete_pipeline(pln)
+    defer ear.delete_pipeline(pln)*/
 
     fbtex := ear.create_texture({
             filter = .Nearest,
@@ -64,17 +65,12 @@ main :: proc() {
     defer ear.delete_texture(tex)
 
     for eat.frame() {
-        ear.clear([3]f32{ .2, .4, .3 })
-
-        ear.bind_pipeline(pln)
-
         ear.bind_framebuffer(&fb)
         ear.clear([3]f32{ .2, .3, .4 })
-        ear.bind_texture(tex, 0)
-        ear.draw(6)
+        ear.tex(&tex, 0,0, 64,64, 1)
 
         ear.bind_framebuffer(nil)
-        ear.bind_texture(fbtex, 0)
-        ear.draw(6)
+        ear.clear([3]f32{ .2, .4, .3 })
+        ear.tex(&fbtex, 0,0, f32(eaw.width), f32(eaw.height), 1)
     }
 }

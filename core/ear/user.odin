@@ -23,33 +23,8 @@ draw :: proc(vertices: i32, instances: i32 = 1) {
 
 
 flush :: proc() {
-    rect_rend.ubo_d.proj = proj
-
-    update_buffer(&rect_rend.ubo)
-    update_buffer(&rect_rend.ssbo)
-
-    bind_pipeline(rect_rend.pln)
-    bind_buffer(rect_rend.ssbo, 0)
-    bind_buffer(rect_rend.ubo, 1)
-
-    draw(6, i32(rect_rend.ssbo_i))
-
-    rect_rend.ssbo_i = 0
-
-
-    tex_rend.ubo_d.proj = proj
-
-    update_buffer(&tex_rend.ubo)
-    update_buffer(&tex_rend.ssbo)
-
-    bind_pipeline(tex_rend.pln)
-    bind_buffer(tex_rend.ssbo, 0)
-    bind_buffer(tex_rend.ubo, 1)
-    bind_texture(tex_rend.cur_tex^, 0)
-
-    draw(6, i32(tex_rend.ssbo_i))
-
-    tex_rend.ssbo_i = 0
+    flush_rect()
+    flush_tex()
 }
 
 
@@ -63,7 +38,7 @@ rect :: proc{
 }
 
 rect_rgba :: proc(x, y: f32, w, h: f32, col: [4]f32) {
-    if int(rect_rend.ssbo_i) == len(rect_rend.ssbo_d) do flush()
+    if int(rect_rend.ssbo_i) == len(rect_rend.ssbo_d) do flush_rect()
 
     rect_rend.ssbo_d[rect_rend.ssbo_i] = { pos = {x,y}, size = {w,h}, col = col }
     rect_rend.ssbo_i += 1
@@ -104,8 +79,8 @@ tex :: proc{
 }
 
 tex_rgba_wh_samp :: proc(tex: ^Texture, x, y: f32, w, h: f32, sx,sy,sw,sh: f32, col: [4]f32) {
-    if int(tex_rend.ssbo_i) == len(tex_rend.ssbo_d) do flush()
-    if tex != tex_rend.cur_tex && tex_rend.cur_tex != nil do flush()
+    if int(tex_rend.ssbo_i) == len(tex_rend.ssbo_d) do flush_tex()
+    if tex != tex_rend.cur_tex && tex_rend.cur_tex != nil do flush_tex()
 
     tex_rend.cur_tex = tex
 
