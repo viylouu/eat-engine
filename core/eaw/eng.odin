@@ -51,4 +51,6 @@ frame :: proc() {
     glfw.PollEvents()
 
     width, height = glfw.GetWindowSize(window)
+
+    update_keys()
 }
