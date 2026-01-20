@@ -16,12 +16,12 @@ clear_rgba :: proc(col: [4]f32) {
 clear_rgb :: proc(col: [3]f32) { clear_rgba([4]f32 { col.r, col.g, col.b, 1 }) }
 
 
-draw :: proc(vertices: i32, instances: i32 = 1) {
-    gl.DrawArraysInstanced(gl.TRIANGLES, 0, vertices, instances)
+draw :: proc(vertices: int, instances: int = 1) {
+    gl.DrawArraysInstanced(gl.TRIANGLES, 0, i32(vertices), i32(instances))
 }
 
-draw_indexed :: proc(indices: []u32, instances: i32 = 1) {
-    gl.DrawElementsInstanced(gl.TRIANGLES, i32(len(indices)), gl.UNSIGNED_INT, raw_data(indices), instances)
+draw_indexed :: proc(indices: []u32, instances: int = 1) {
+    gl.DrawElementsInstanced(gl.TRIANGLES, i32(len(indices)), gl.UNSIGNED_INT, raw_data(indices), i32(instances))
 }
 
 

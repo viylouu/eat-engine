@@ -55,7 +55,7 @@ flush_rect :: proc() {
     bind_buffer(rect_rend.ssbo, 0)
     bind_buffer(rect_rend.ubo, 1)
 
-    draw(6, i32(rect_rend.ssbo_i))
+    draw(6, int(rect_rend.ssbo_i))
 
     rect_rend.ssbo_i = 0
 }
@@ -114,7 +114,7 @@ flush_tex :: proc() {
     bind_buffer(tex_rend.ubo, 1)
     bind_texture(tex_rend.cur_tex^, 0)
 
-    draw(6, i32(tex_rend.ssbo_i))
+    draw(6, int(tex_rend.ssbo_i))
 
     tex_rend.ssbo_i = 0
 }
