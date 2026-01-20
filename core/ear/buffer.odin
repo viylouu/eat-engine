@@ -17,6 +17,7 @@ Buffer :: struct{
 BufferDesc :: struct{
     type: BufferType,
     usage: BufferUsage,
+    stride: u32,
 }
 
 BufferType :: enum{
@@ -61,6 +62,9 @@ bind_buffer :: proc(buffer: Buffer, slot: u32) {
 
     if buffer.desc.type == .Uniform || buffer.desc.type == .Storage {
         gl.BindBufferBase(targ, slot, buffer.id) }
+
+    if buffer.desc.type == .Vertex {
+        gl.BindVertexBuffer(slot, buffer.id, 0, i32(buffer.desc.stride)) }
 }
 
 update_buffer :: proc(buffer: ^Buffer) {

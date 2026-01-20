@@ -27,11 +27,13 @@ rect_rend_create :: proc() {
     rect_rend.ubo = create_buffer({
         type = .Uniform,
         usage = .Dynamic,
+        stride = size_of(rect_rend.ubo_d),
     }, &rect_rend.ubo_d, size_of(rect_rend.ubo_d))
 
     rect_rend.ssbo = create_buffer({
         type = .Storage,
         usage = .Dynamic,
+        stride = size_of(rect_rend.ssbo_d[0]),
     }, &rect_rend.ssbo_d, size_of(rect_rend.ssbo_d))
 }
 
@@ -85,11 +87,13 @@ tex_rend_create :: proc() {
     tex_rend.ubo = create_buffer({
         type = .Uniform,
         usage = .Dynamic,
+        stride = size_of(tex_rend.ubo_d),
     }, &tex_rend.ubo_d, size_of(tex_rend.ubo_d))
 
     tex_rend.ssbo = create_buffer({
         type = .Storage,
         usage = .Dynamic,
+        stride = size_of(tex_rend.ssbo_d[0]),
     }, &tex_rend.ssbo_d, size_of(tex_rend.ssbo_d))
 }
 
