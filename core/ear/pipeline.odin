@@ -16,6 +16,8 @@ PipelineDesc :: struct{
     fragment: ShaderDesc,
 
     vertex_attribs: []VertexAttribDesc,
+
+    depth: bool,
 }
 
 ShaderDesc :: struct{
@@ -113,6 +115,8 @@ delete_pipeline :: proc(pln: Pipeline) {
 bind_pipeline :: proc(pln: Pipeline) {
     gl.UseProgram(pln.id)
     gl.BindVertexArray(pln.vao)
+    if pln.desc.depth do gl.Enable(gl.DEPTH_TEST)
+        else do gl.Disable(gl.DEPTH_TEST)
 }
 
 
