@@ -29,6 +29,7 @@ VertexAttribDesc :: struct{
     components: u32, // type Float + this being 3 means vec3
     norm: bool,
     stride: u32,
+    offset: uintptr,
 }
 
 PrimitiveType :: enum{
@@ -89,15 +90,15 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
     for attrib in desc.vertex_attribs {
         bind_buffer(attrib.buffer^, 0)
 
-        gl.EnableVertexAttribArray(attrib.location)
         gl.VertexAttribPointer(
             attrib.location, 
             i32(attrib.components),
             TYPECONV_primitive_type(attrib.type), 
             attrib.norm? gl.TRUE : gl.FALSE,
             i32(attrib.stride),
-            0,
+            attrib.offset,
             )
+        gl.EnableVertexAttribArray(attrib.location)
     }
 
     gl.BindVertexArray(0)
