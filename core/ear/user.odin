@@ -1,4 +1,4 @@
-package ear
+ackage ear
 
 import "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
@@ -20,8 +20,8 @@ draw :: proc(vertices: i32, instances: i32 = 1) {
     gl.DrawArraysInstanced(gl.TRIANGLES, 0, vertices, instances)
 }
 
-draw_indexed :: proc(amt: i32, indices: []u32, instances: i32 = 1) {
-    gl.DrawElementsInstanced(gl.TRIANGLES, amt, gl.UNSIGNED_INT, raw_data(indices), instances)
+draw_indexed :: proc(indices: []u32, instances: i32 = 1) {
+    gl.DrawElementsInstanced(gl.TRIANGLES, len(indices), gl.UNSIGNED_INT, raw_data(indices), instances)
 }
 
 
