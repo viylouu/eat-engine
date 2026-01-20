@@ -115,8 +115,10 @@ delete_pipeline :: proc(pln: Pipeline) {
 bind_pipeline :: proc(pln: Pipeline) {
     gl.UseProgram(pln.id)
     gl.BindVertexArray(pln.vao)
-    if pln.desc.depth do gl.Enable(gl.DEPTH_TEST)
-        else do gl.Disable(gl.DEPTH_TEST)
+    if pln.desc.depth { 
+        gl.Enable(gl.DEPTH_TEST)
+        gl.DepthFunc(gl.LESS)
+    } else do gl.Disable(gl.DEPTH_TEST)
 }
 
 
