@@ -15,12 +15,18 @@ Texture :: struct{
 }
 
 TextureDesc :: struct{
-    filter: TextureFilter
+    filter: TextureFilter,
+    type: TextureType
 }
 
 TextureFilter :: enum{
     Nearest,
     Linear,
+}
+
+TextureType :: enum{
+    Color,
+    Depth,
 }
 
 create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> Texture {
@@ -41,10 +47,10 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
     gl.TexImage2D(
         gl.TEXTURE_2D,
         0,
-        gl.RGBA,
+        desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT24,
         i32(width), i32(height),
         0,
-        gl.RGBA,
+        desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT,
         gl.UNSIGNED_BYTE,
         pixels
         )
@@ -90,4 +96,5 @@ TYPECONV_texture_filter :: proc(filter: TextureFilter) -> i32 {
     assert(false)
     return 0
 }
+
 

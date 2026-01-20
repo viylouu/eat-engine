@@ -25,6 +25,7 @@ main :: proc() {
 
     tex := ear.load_texture({
         filter = .Nearest,
+        type = .Color,
     }, #load("tex.png"))
     defer ear.delete_texture(tex)
 
