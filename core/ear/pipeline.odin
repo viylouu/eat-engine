@@ -18,6 +18,9 @@ PipelineDesc :: struct{
     vertex_attribs: []VertexAttribDesc,
 
     depth: bool,
+
+    cull_mode: CullMode,
+    front: FrontFace,
 }
 
 ShaderDesc :: struct{
@@ -36,6 +39,17 @@ VertexAttribDesc :: struct{
 
 PrimitiveType :: enum{
     Float
+}
+
+CullMode :: enum{
+    None,
+    Front,
+    Back,
+}
+
+FrontFace :: enum{
+    CW,
+    CCW,
 }
 
 create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
@@ -115,10 +129,17 @@ delete_pipeline :: proc(pln: Pipeline) {
 bind_pipeline :: proc(pln: Pipeline) {
     gl.UseProgram(pln.id)
     gl.BindVertexArray(pln.vao)
+
     if pln.desc.depth { 
         gl.Enable(gl.DEPTH_TEST)
         gl.DepthFunc(gl.LESS)
     } else do gl.Disable(gl.DEPTH_TEST)
+
+    if pln.desc.cull_mode != .None {
+        gl.Enable(gl.CULL_FACE)
+        gl.CullFace(TYPECONV_cull_mode(pln.desc.cull_mode))
+        gl.FrontFace(TYPECONV_front_face(pln.desc.front))
+    } else do gl.Disable(gl.CULL_FACE)
 }
 
 
@@ -128,6 +149,34 @@ TYPECONV_primitive_type :: proc(type: PrimitiveType) -> u32 {
     switch type {
     case .Float:
         return gl.FLOAT
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_cull_mode :: proc(mode: CullMode) -> u32 {
+    switch mode {
+    case .None:
+        return gl.NONE
+    case .Front:
+        return gl.FRONT
+    case .Back:
+        return gl.BACK
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_front_face :: proc(front: FrontFace) -> u32 {
+    switch front {
+    case .CW:
+        return gl.CW
+    case .CCW:
+        return gl.CCW
     }
 
     assert(false)
