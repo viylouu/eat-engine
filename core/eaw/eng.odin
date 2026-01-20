@@ -6,6 +6,9 @@ import "vendor:glfw"
 window: glfw.WindowHandle
 width, height: i32
 
+delta, time: f32
+lasttime: f32
+
 init :: proc(
     w,h: i32,
     title: cstring,
@@ -31,6 +34,8 @@ init :: proc(
 
     glfw.SetWindowSize(window, width + 1, height)
     glfw.SetWindowSize(window, width, height)
+
+    time = f32(glfw.GetTime())
 }
 
 stop :: proc() {
@@ -53,4 +58,8 @@ frame :: proc() {
     width, height = glfw.GetWindowSize(window)
 
     update_keys()
+
+    lasttime = time
+    time = f32(glfw.GetTime())
+    delta = time - lasttime
 }
