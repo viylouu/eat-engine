@@ -23,6 +23,7 @@ ShaderDesc :: struct{
 }
 
 VertexAttribDesc :: struct{
+    buffer: ^Buffer,
     location: u32,
     type: PrimitiveType,
     components: u32, // type Float + this being 3 means vec3
@@ -86,6 +87,8 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
     gl.BindVertexArray(pln.vao)
 
     for attrib in desc.vertex_attribs {
+        bind_buffer(attrib.buffer^, 0)
+
         gl.EnableVertexAttribArray(attrib.location)
         gl.VertexAttribPointer(
             attrib.location, 
