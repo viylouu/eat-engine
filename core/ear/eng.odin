@@ -7,7 +7,7 @@ import gl "vendor:OpenGL"
 import "../eaw"
 
 init :: proc() {
-    gl.load_up_to(3,3, glfw.gl_set_proc_address)
+    gl.load_up_to(4,3, glfw.gl_set_proc_address)
 
     rect_rend_create()
     tex_rend_create()
