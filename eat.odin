@@ -5,14 +5,15 @@ import "core:fmt"
 import "core/eaw"
 import "core/ear"
 
-time: f32
-delta: f32
-
 init :: proc(
     width, height: i32,
     title: cstring,
+
+    other: struct{
+        vsync: Maybe(bool)
+    }
 ) {
-    eaw.init(width,height, title)
+    eaw.init(width,height, title, other.vsync.? or_else true)
     ear.init()
 }
 
@@ -27,9 +28,6 @@ frame :: proc() -> bool {
 
     ear.frame()
     eaw.frame()
-
-    time = eaw.time
-    delta = eaw.delta
 
     return true
 }

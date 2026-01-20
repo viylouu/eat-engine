@@ -31,6 +31,7 @@ main :: proc() {
     eat.init(
             800, 600,
             "triangle",
+            {}
         )
     defer eat.stop()
 

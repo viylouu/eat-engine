@@ -8,7 +8,8 @@ import "../../core/ear"
 main :: proc() {
     eat.init(
             800, 600,
-            "window",
+            "texture",
+            {}
         )
     defer eat.stop()
 

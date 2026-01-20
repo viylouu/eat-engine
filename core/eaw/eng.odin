@@ -12,6 +12,8 @@ lasttime: f32
 init :: proc(
     w,h: i32,
     title: cstring,
+
+    vsync: bool
 ) {
     assert(glfw.Init() != false)
 
@@ -30,7 +32,7 @@ init :: proc(
     assert(window != nil)
 
     glfw.MakeContextCurrent(window)
-    glfw.SwapInterval(1)
+    glfw.SwapInterval(vsync? 1 : 0)
 
     glfw.SetWindowSize(window, width + 1, height)
     glfw.SetWindowSize(window, width, height)
