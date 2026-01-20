@@ -22,6 +22,8 @@ BufferDesc :: struct{
 BufferType :: enum{
     Uniform,
     Storage,
+    Vertex,
+    Index,
 }
 
 BufferUsage :: enum{
@@ -85,6 +87,10 @@ TYPECONV_buffer_type :: proc(type: BufferType) -> u32 {
         return gl.UNIFORM_BUFFER
     case .Storage:
         return gl.SHADER_STORAGE_BUFFER
+    case .Vertex:
+        return gl.ARRAY_BUFFER
+    case .Index:
+        return gl.ELEMENT_ARRAY_BUFFER
     }
 
     assert(false)

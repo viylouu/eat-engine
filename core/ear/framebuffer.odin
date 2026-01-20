@@ -67,13 +67,13 @@ delete_framebuffer :: proc(fb: Framebuffer) {
 }
 
 // can provide nil to unbind
-bind_framebuffer :: proc(fb: ^Framebuffer) {
+bind_framebuffer :: proc(fb: Maybe(Framebuffer)) {
     flush()
 
     if fb != nil {
-        w,h := fb.desc.out_colors[0].width, fb.desc.out_colors[0].height
+        w,h := fb.?.desc.out_colors[0].width, fb.?.desc.out_colors[0].height
 
-        gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)
+        gl.BindFramebuffer(gl.FRAMEBUFFER, fb.?.id)
         gl.Viewport(0,0, i32(w), i32(h))
         proj = glsl.mat4Ortho3d(0, f32(w), 0, f32(h), 0,1)
     } else {

@@ -28,7 +28,7 @@ main :: proc() {
     defer ear.delete_texture(tex)
 
     for eat.frame() {
-        ear.bind_framebuffer(&fb)
+        ear.bind_framebuffer(fb)
         ear.clear([3]f32{ .2, .3, .4 })
         ear.tex(&tex, 0,0, 64,64, 1)
 

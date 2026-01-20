@@ -14,10 +14,24 @@ Pipeline :: struct{
 PipelineDesc :: struct{
     vertex: ShaderDesc,
     fragment: ShaderDesc,
+
+    vertex_attribs: []VertexAttribDesc,
 }
 
 ShaderDesc :: struct{
     source: ^cstring,
+}
+
+VertexAttribDesc :: struct{
+    location: u32,
+    type: PrimitiveType,
+    components: u32, // type Float + this being 3 means vec3
+    norm: bool,
+    stride: u32,
+}
+
+PrimitiveType :: enum{
+    Float
 }
 
 create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
@@ -69,6 +83,21 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
     }
 
     gl.GenVertexArrays(1, &pln.vao)
+    gl.BindVertexArray(pln.vao)
+
+    for attrib in desc.vertex_attribs {
+        gl.EnableVertexAttribArray(attrib.location)
+        gl.VertexAttribPointer(
+            attrib.location, 
+            i32(attrib.components),
+            TYPECONV_primitive_type(attrib.type), 
+            attrib.norm? gl.TRUE : gl.FALSE,
+            i32(attrib.stride),
+            0,
+            )
+    }
+
+    gl.BindVertexArray(0)
 
     return pln
 }
@@ -80,4 +109,17 @@ delete_pipeline :: proc(pln: Pipeline) {
 bind_pipeline :: proc(pln: Pipeline) {
     gl.UseProgram(pln.id)
     gl.BindVertexArray(pln.vao)
+}
+
+
+
+@private
+TYPECONV_primitive_type :: proc(type: PrimitiveType) -> u32 {
+    switch type {
+    case .Float:
+        return gl.FLOAT
+    }
+
+    assert(false)
+    return 0
 }

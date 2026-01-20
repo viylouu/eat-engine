@@ -20,6 +20,10 @@ draw :: proc(vertices: i32, instances: i32 = 1) {
     gl.DrawArraysInstanced(gl.TRIANGLES, 0, vertices, instances)
 }
 
+draw_indexed :: proc(amt: i32, indices: []u32, instances: i32 = 1) {
+    gl.DrawElementsInstanced(gl.TRIANGLES, amt, gl.UNSIGNED_INT, raw_data(indices), instances)
+}
+
 
 
 flush :: proc() {
