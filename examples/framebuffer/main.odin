@@ -20,6 +20,8 @@ main :: proc() {
     defer ear.delete_texture(fbtex)
     fb := ear.create_framebuffer({
             out_colors = { &fbtex },
+            width = 128,
+            height = 128,
         })
     defer ear.delete_framebuffer(fb)
 

@@ -16,6 +16,8 @@ Framebuffer :: struct{
 FramebufferDesc :: struct{
     out_colors: []^Texture,
     out_depth: ^Texture,
+    width: u32,
+    height: u32,
 }
 
 create_framebuffer :: proc(desc: FramebufferDesc) -> Framebuffer {
@@ -70,7 +72,7 @@ bind_framebuffer :: proc(fb: Maybe(Framebuffer)) {
     flush()
 
     if fb != nil {
-        w,h := fb.?.desc.out_colors[0].width, fb.?.desc.out_colors[0].height
+        w,h := fb.?.desc.width, fb.?.desc.height
 
         gl.BindFramebuffer(gl.FRAMEBUFFER, fb.?.id)
         gl.Viewport(0,0, i32(w), i32(h))
@@ -81,3 +83,4 @@ bind_framebuffer :: proc(fb: Maybe(Framebuffer)) {
         proj = glsl.mat4Ortho3d(0, f32(eaw.width), f32(eaw.height), 0, 0,1)
     }
 }
+
