@@ -16,7 +16,8 @@ Texture :: struct{
 
 TextureDesc :: struct{
     filter: TextureFilter,
-    type: TextureType
+    type: TextureType,
+    wrap: TextureWrap,
 }
 
 TextureFilter :: enum{
@@ -29,6 +30,11 @@ TextureType :: enum{
     Depth,
 }
 
+TextureWrap :: enum{
+    Repeat,
+    Clamp,
+}
+
 create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> Texture {
     tex := Texture{ desc = desc, width = width, height = height }
 
@@ -38,11 +44,12 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
     gl.BindTexture(gl.TEXTURE_2D, tex.id)
 
     sampling := TYPECONV_texture_filter(tex.desc.filter)
+    wrap := TYPECONV_texture_wrap(tex.desc.wrap)
 
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, sampling)
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, sampling)
-    gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-    gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+    gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap)
+    gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap)
 
     gl.TexImage2D(
         gl.TEXTURE_2D,
@@ -97,4 +104,15 @@ TYPECONV_texture_filter :: proc(filter: TextureFilter) -> i32 {
     return 0
 }
 
+@private
+TYPECONV_texture_wrap :: proc(wrap: TextureWrap) -> i32 {
+    switch wrap {
+    case .Repeat:
+        return gl.REPEAT
+    case .Clamp:
+        return gl.CLAMP_TO_EDGE
+    }
 
+    assert(false)
+    return 0
+}
