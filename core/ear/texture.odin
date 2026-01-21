@@ -18,6 +18,7 @@ TextureDesc :: struct{
     filter: TextureFilter,
     type: TextureType,
     wrap: TextureWrap,
+        wrap_color: [4]f32
 }
 
 TextureFilter :: enum{
@@ -33,6 +34,7 @@ TextureType :: enum{
 TextureWrap :: enum{
     Repeat,
     Clamp,
+    Color,
 }
 
 create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> Texture {
@@ -50,6 +52,8 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, sampling)
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap)
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap)
+    col := []f32{ desc.wrap_color.r, desc.wrap_color.g, desc.wrap_color.b, desc.wrap_color.a }
+    gl.TexParameterfv(gl.TEXTURE_2D, gl.TEXTURE_BORDER_COLOR, raw_data(col))
 
     gl.TexImage2D(
         gl.TEXTURE_2D,
@@ -111,6 +115,8 @@ TYPECONV_texture_wrap :: proc(wrap: TextureWrap) -> i32 {
         return gl.REPEAT
     case .Clamp:
         return gl.CLAMP_TO_EDGE
+    case .Color:
+        return gl.CLAMP_TO_BORDER
     }
 
     assert(false)
