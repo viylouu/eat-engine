@@ -50,6 +50,10 @@ keys: [Key]KeyState
 mousebuts: [Mouse]KeyState
 mouse: [2]f32
 mouse64: [2]f64
+mouse_delta: [2]f32
+mouse_delta64: [2]f64
+@private
+lmouse64: [2]f64
 
 is_key :: proc(key: Key) -> bool { return keys[key] == .Pressed || keys[key] == .Held }
 is_key_pressed :: proc(key: Key) -> bool { return keys[key] == .Pressed }
@@ -128,7 +132,11 @@ update_keys :: proc() {
     upm(.Right, glfw.MOUSE_BUTTON_RIGHT)
     upm(.Middle, glfw.MOUSE_BUTTON_MIDDLE)
 
+    lmouse64 = mouse64
     mouse64.x, mouse64.y = glfw.GetCursorPos(window)
     mouse.x = f32(mouse64.x)
     mouse.y = f32(mouse64.y)
+    mouse_delta64 = mouse64 - lmouse64
+    mouse_delta.x = f32(mouse_delta64.x)
+    mouse_delta.y = f32(mouse_delta64.y)
 }
