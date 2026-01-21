@@ -38,7 +38,8 @@ create_framebuffer :: proc(desc: FramebufferDesc) -> Framebuffer {
         append(&dbufs, u32(gl.COLOR_ATTACHMENT0 + i))
     }
 
-    gl.DrawBuffers(i32(len(dbufs)), raw_data(dbufs))
+    if len(dbufs) > 0 do gl.DrawBuffers(i32(len(dbufs)), raw_data(dbufs))
+    else do gl.DrawBuffer(gl.NONE)
 
     if desc.out_depth != nil {
         gl.FramebufferTexture2D(
