@@ -24,8 +24,6 @@ create_framebuffer :: proc(desc: FramebufferDesc) -> Framebuffer {
     gl.GenFramebuffers(1, &fb.id)
     gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)
 
-    assert(len(desc.out_colors) > 0)
-
     dbufs := make([dynamic]u32)
     for col, i in desc.out_colors {
         gl.FramebufferTexture2D(
