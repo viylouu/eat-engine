@@ -60,6 +60,24 @@ is_mouse_pressed :: proc(mouse: Mouse) -> bool { return mousebuts[mouse] == .Pre
 is_mouse_released :: proc(mouse: Mouse) -> bool { return mousebuts[mouse] == .Released }
 
 
+MouseMode :: enum{
+    Normal,
+    Hidden,
+    Locked,
+}
+
+mouse_mode :: proc(mode: MouseMode) {
+    switch mode {
+    case .Normal:
+        glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_NORMAL)
+    case .Hidden:
+        glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_HIDDEN)
+    case .Locked:
+        glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+    }
+}
+
+
 upk :: proc(key: Key, fw: i32) {
     prev := keys[key]
     keys[key] = glfw.GetKey(window, fw) == 1? .Pressed : .Released
