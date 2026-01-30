@@ -28,13 +28,12 @@ ShaderDesc :: struct{
 }
 
 VertexAttribDesc :: struct{
-    buffer: ^Buffer,
     location: u32,
     type: PrimitiveType,
     components: u32, // type Float + this being 3 means vec3
     norm: bool,
-    stride: u32,
-    offset: uintptr,
+    offset: u32,
+    slot: u32, // slot vertex buffer is bound to
 }
 
 PrimitiveType :: enum{
@@ -104,15 +103,26 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
     gl.BindVertexArray(pln.vao)
 
     for attrib in desc.vertex_attribs {
-        bind_buffer(attrib.buffer^, 0)
+        //bind_buffer(attrib.buffer^, 0)
 
-        gl.VertexAttribPointer(
+        /*gl.VertexAttribPointer(
             attrib.location, 
             i32(attrib.components),
             TYPECONV_primitive_type(attrib.type), 
             attrib.norm? gl.TRUE : gl.FALSE,
             i32(attrib.stride),
             attrib.offset,
+            )*/
+        gl.VertexAttribFormat(
+            attrib.location,
+            i32(attrib.components),
+            TYPECONV_primitive_type(attrib.type),
+            attrib.norm? gl.TRUE : gl.FALSE,
+            attrib.offset,
+            )
+        gl.VertexAttribBinding(
+            attrib.location,
+            attrib.slot,
             )
         gl.EnableVertexAttribArray(attrib.location)
     }
