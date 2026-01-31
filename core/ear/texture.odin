@@ -141,9 +141,8 @@ apply_texture_changes :: proc(tex: Texture) {
     gl.TexSubImage2D(
         gl.TEXTURE_2D,
         0,
-        tex.desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT24,
+        0,0,
         i32(tex.width), i32(tex.height),
-        0,
         tex.desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT,
         gl.UNSIGNED_BYTE,
         tex.pixels
