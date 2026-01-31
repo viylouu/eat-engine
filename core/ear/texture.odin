@@ -46,6 +46,9 @@ TextureWrap :: enum{
     Color,
 }
 
+// in order to get/set color, you need to supply an array for pixels
+// you may not supply null
+// array size should be at LEAST width * height * 4
 create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> Texture {
     tex := Texture{ 
         desc = desc, 
