@@ -18,8 +18,8 @@ Texture :: struct{
     delete: proc(tex: Texture),
     bind: proc(tex: Texture, slot: u32), // this sets the uniform aswell!
 
-    get_color: proc(tex: Texture, x,y: u32) -> [4]u8,
-    set_color: proc(tex: ^Texture, x,y: u32, col: [4]u8),
+    get_color: proc(tex: Texture, #any_int x,y: u32) -> [4]u8,
+    set_color: proc(tex: ^Texture, #any_int x,y: u32, col: [4]u8),
     apply_changes: proc(tex: Texture),
 }
 
@@ -117,7 +117,7 @@ bind_texture :: proc(tex: Texture, slot: u32) {
     gl.Uniform1i(i32(slot), i32(slot))
 }
 
-get_texture_color :: proc(tex: Texture, x,y: u32) -> [4]u8 {
+get_texture_color :: proc(tex: Texture, #any_int x,y: u32) -> [4]u8 {
     i := (x + y * tex.width) * 4
     return { 
         tex.pixels[i + 0],
@@ -127,7 +127,7 @@ get_texture_color :: proc(tex: Texture, x,y: u32) -> [4]u8 {
     }
 }
 
-set_texture_color :: proc(tex: ^Texture, x,y: u32, col: [4]u8) {
+set_texture_color :: proc(tex: ^Texture, #any_int x,y: u32, col: [4]u8) {
     i := (x + y * tex.width) * 4
     tex.pixels[i + 0] = col.r
     tex.pixels[i + 1] = col.g
