@@ -12,6 +12,11 @@ Buffer :: struct{
     data: rawptr,
 
     desc: BufferDesc,
+
+    delete: proc(buffer: Buffer),
+    bind: proc(buffer: Buffer, slot: u32),
+
+    update: proc(buffer: ^Buffer),
 }
 
 BufferDesc :: struct{
@@ -33,7 +38,16 @@ BufferUsage :: enum{
 }
 
 create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32) -> Buffer {
-    buf := Buffer{ desc = desc, data = db, size = size, prev_size = size }
+    buf := Buffer{ 
+        desc = desc, 
+        data = db, 
+        size = size, prev_size = size,
+
+        delete = delete_buffer,
+        bind = bind_buffer,
+
+        update = update_buffer,
+    }
 
     gl.GenBuffers(1, &buf.id)
 

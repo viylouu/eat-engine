@@ -8,10 +8,19 @@ import "vendor:stb/image"
 Texture :: struct{
     id: u32,
 
+    pixels: [^]u8,
+
     width: u32,
     height: u32,
 
     desc: TextureDesc,
+
+    delete: proc(tex: Texture),
+    bind: proc(tex: Texture, slot: u32), // this sets the uniform aswell!
+
+    get_color: proc(tex: Texture, x,y: u32) -> [4]u8,
+    set_color: proc(tex: ^Texture, x,y: u32, col: [4]u8),
+    apply_changes: proc(tex: Texture),
 }
 
 TextureDesc :: struct{
@@ -38,7 +47,17 @@ TextureWrap :: enum{
 }
 
 create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> Texture {
-    tex := Texture{ desc = desc, width = width, height = height }
+    tex := Texture{ 
+        desc = desc, 
+        width = width, height = height,
+
+        delete = delete_texture,
+        bind = bind_texture,
+
+        get_color = get_texture_color,
+        set_color = set_texture_color,
+        apply_changes = apply_texture_changes,
+    }
 
     gl.GenTextures(1, &tex.id)
     assert(tex.id != 0)
@@ -91,6 +110,41 @@ bind_texture :: proc(tex: Texture, slot: u32) {
     gl.ActiveTexture(gl.TEXTURE0 + slot)
     gl.BindTexture(gl.TEXTURE_2D, tex.id)
     gl.Uniform1i(i32(slot), i32(slot))
+}
+
+get_texture_color :: proc(tex: Texture, x,y: u32) -> [4]u8 {
+    i := (x + y * tex.width) * 4
+    return { 
+        tex.pixels[i + 0],
+        tex.pixels[i + 1],
+        tex.pixels[i + 2],
+        tex.pixels[i + 3],
+    }
+}
+
+set_texture_color :: proc(tex: ^Texture, x,y: u32, col: [4]u8) {
+    i := (x + y * tex.width) * 4
+    tex.pixels[i + 0] = col.r
+    tex.pixels[i + 1] = col.g
+    tex.pixels[i + 2] = col.b
+    tex.pixels[i + 3] = col.a
+}
+
+apply_texture_changes :: proc(tex: Texture) {
+    gl.BindTexture(gl.TEXTURE_2D, tex.id)
+
+    gl.TexSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        tex.desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT24,
+        i32(tex.width), i32(tex.height),
+        0,
+        tex.desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT,
+        gl.UNSIGNED_BYTE,
+        tex.pixels
+        )
+
+    gl.BindTexture(gl.TEXTURE_2D, 0)
 }
 
 

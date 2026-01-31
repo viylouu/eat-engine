@@ -17,22 +17,22 @@ main :: proc() {
     fbtex := ear.create_texture({
             filter = .Nearest,
         }, nil, 128, 128)
-    defer ear.delete_texture(fbtex)
+    defer fbtex->delete()
     fb := ear.create_framebuffer({
             out_colors = { &fbtex },
             width = 128,
             height = 128,
         })
-    defer ear.delete_framebuffer(fb)
+    defer fb->delete()
 
     tex := ear.load_texture({
         filter = .Nearest,
         type = .Color,
     }, #load("tex.png"))
-    defer ear.delete_texture(tex)
+    defer tex->delete()
 
     for eat.frame() {
-        ear.bind_framebuffer(fb)
+        fb->bind()
         ear.clear([3]f32{ .2, .3, .4 })
         ear.tex(&tex, 0,0, 64,64, 1)
 

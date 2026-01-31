@@ -17,7 +17,7 @@ main :: proc() {
         filter = .Nearest,
         type = .Color,
     }, #load("tex.png"))
-    defer ear.delete_texture(tex)
+    defer tex->delete()
 
     for eat.frame() {
         ear.clear([3]f32{ .2, .4, .3 })

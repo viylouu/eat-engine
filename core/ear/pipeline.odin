@@ -9,6 +9,9 @@ Pipeline :: struct{
     vao: u32,
 
     desc: PipelineDesc,
+
+    delete: proc(pln: Pipeline),
+    bind: proc(pln: Pipeline),
 }
 
 PipelineDesc :: struct{
@@ -52,7 +55,12 @@ FrontFace :: enum{
 }
 
 create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
-    pln := Pipeline{ desc = desc }
+    pln := Pipeline{ 
+        desc = desc,
+
+        delete = delete_pipeline,
+        bind = bind_pipeline,
+    }
 
     vsh := gl.CreateShader(gl.VERTEX_SHADER)
         defer gl.DeleteShader(vsh)

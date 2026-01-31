@@ -39,12 +39,12 @@ main :: proc() {
             vertex = { source = &vtx },
             fragment = { source = &frag },
         })
-    defer ear.delete_pipeline(pln)
+    defer pln->delete()
 
     for eat.frame() {
         ear.clear([3]f32{ .2, .4, .3 })
 
-        ear.bind_pipeline(pln)
+        pln->bind()
         ear.draw(3)
     }
 }

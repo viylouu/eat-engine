@@ -11,6 +11,9 @@ Framebuffer :: struct{
     id: u32,
 
     desc: FramebufferDesc,
+
+    delete: proc(fb: Framebuffer),
+    bind: proc(fb: Maybe(Framebuffer)),
 }
 
 FramebufferDesc :: struct{
@@ -21,7 +24,12 @@ FramebufferDesc :: struct{
 }
 
 create_framebuffer :: proc(desc: FramebufferDesc) -> Framebuffer {
-    fb := Framebuffer{ desc = desc }
+    fb := Framebuffer{ 
+        desc = desc,
+
+        delete = delete_framebuffer,
+        bind = bind_framebuffer,
+    }
 
     gl.GenFramebuffers(1, &fb.id)
     gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)

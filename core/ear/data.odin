@@ -39,9 +39,9 @@ rect_rend_create :: proc() {
 
 @private
 rect_rend_delete :: proc() {
-    delete_buffer(rect_rend.ssbo)
-    delete_buffer(rect_rend.ubo)
-    delete_pipeline(rect_rend.pln)
+    rect_rend.ssbo->delete()
+    rect_rend.ubo->delete()
+    rect_rend.pln->delete()
 }
 
 @private
@@ -50,12 +50,12 @@ flush_rect :: proc() {
 
     rect_rend.ubo_d.proj = proj
 
-    update_buffer(&rect_rend.ubo)
-    update_buffer(&rect_rend.ssbo)
+    rect_rend.ubo->update()
+    rect_rend.ssbo->update()
 
-    bind_pipeline(rect_rend.pln)
-    bind_buffer(rect_rend.ssbo, 0)
-    bind_buffer(rect_rend.ubo, 1)
+    rect_rend.pln->bind()
+    rect_rend.ssbo->bind(0)
+    rect_rend.ubo->bind(1)
 
     draw(6, int(rect_rend.ssbo_i))
 
@@ -99,9 +99,9 @@ tex_rend_create :: proc() {
 
 @private
 tex_rend_delete :: proc() {
-    delete_buffer(tex_rend.ssbo)
-    delete_buffer(tex_rend.ubo)
-    delete_pipeline(tex_rend.pln)
+    tex_rend.ssbo->delete()
+    tex_rend.ubo->delete()
+    tex_rend.pln->delete()
 }
 
 @private
@@ -110,13 +110,13 @@ flush_tex :: proc() {
 
     tex_rend.ubo_d.proj = proj
 
-    update_buffer(&tex_rend.ubo)
-    update_buffer(&tex_rend.ssbo)
+    tex_rend.ubo->update()
+    tex_rend.ssbo->update()
 
-    bind_pipeline(tex_rend.pln)
-    bind_buffer(tex_rend.ssbo, 0)
-    bind_buffer(tex_rend.ubo, 1)
-    bind_texture(tex_rend.cur_tex^, 0)
+    tex_rend.pln->bind()
+    tex_rend.ssbo->bind(0)
+    tex_rend.ubo->bind(1)
+    tex_rend.cur_tex->bind(0)
 
     draw(6, int(tex_rend.ssbo_i))
 
