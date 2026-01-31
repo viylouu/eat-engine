@@ -60,6 +60,8 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
         get_color = get_texture_color,
         set_color = set_texture_color,
         apply_changes = apply_texture_changes,
+
+        pixels = pixels,
     }
 
     gl.GenTextures(1, &tex.id)
