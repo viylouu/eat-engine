@@ -4,10 +4,6 @@ import "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
 
-as_rgba :: proc(xrgba: [4]u8) -> [4]f32 { return { f32(xrgba.r) / 255, f32(xrgba.g) / 255, f32(xrgba.b) / 255, f32(xrgba.a) / 255 } }
-as_rgb :: proc(xrgb: [3]u8) -> [3]f32 { return as_rgba(xrgb.xyzx).xyz }
-
-
 clear :: proc{
     clear_rgba,
     clear_rgb,
