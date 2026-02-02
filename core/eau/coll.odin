@@ -28,7 +28,7 @@ aabb2d :: proc(a: Rectangle, b: Rectangle) -> bool {
 CONV_rect_topleftify :: proc(rect: Rectangle) -> Rectangle {
     off: [2]f32
 
-    switch (rect.align) {
+    switch rect.align {
     case .TopLeft:   off = { 0, 0 }
     case .TopCenter: off = { .5, 0 }
     case .TopRight:  off = { 1, 0 }
