@@ -18,8 +18,8 @@ Texture :: struct{
     delete: proc(tex: Texture),
     bind: proc(tex: Texture, slot: u32), // this sets the uniform aswell!
 
-    get_color: proc(tex: Texture, #any_int x,y: u32) -> [4]u8,
-    set_color: proc(tex: ^Texture, #any_int x,y: u32, col: [4]u8),
+    get_color: proc(tex: Texture, #any_int x,y: u32) -> [4]f32,
+    set_color: proc(tex: ^Texture, #any_int x,y: u32, col: [4]f32),
     apply_changes: proc(tex: Texture),
 }
 
@@ -117,22 +117,22 @@ bind_texture :: proc(tex: Texture, slot: u32) {
     gl.Uniform1i(i32(slot), i32(slot))
 }
 
-get_texture_color :: proc(tex: Texture, #any_int x,y: u32) -> [4]u8 {
+get_texture_color :: proc(tex: Texture, #any_int x,y: u32) -> [4]f32 {
     i := (x + y * tex.width) * 4
     return { 
-        tex.pixels[i + 0],
-        tex.pixels[i + 1],
-        tex.pixels[i + 2],
-        tex.pixels[i + 3],
+        f32(tex.pixels[i + 0]) / 255,
+        f32(tex.pixels[i + 1]) / 255,
+        f32(tex.pixels[i + 2]) / 255,
+        f32(tex.pixels[i + 3]) / 255,
     }
 }
 
-set_texture_color :: proc(tex: ^Texture, #any_int x,y: u32, col: [4]u8) {
+set_texture_color :: proc(tex: ^Texture, #any_int x,y: u32, col: [4]f32) {
     i := (x + y * tex.width) * 4
-    tex.pixels[i + 0] = col.r
-    tex.pixels[i + 1] = col.g
-    tex.pixels[i + 2] = col.b
-    tex.pixels[i + 3] = col.a
+    tex.pixels[i + 0] = u8(col.r * 255)
+    tex.pixels[i + 1] = u8(col.g * 255)
+    tex.pixels[i + 2] = u8(col.b * 255)
+    tex.pixels[i + 3] = u8(col.a * 255)
 }
 
 apply_texture_changes :: proc(tex: Texture) {
