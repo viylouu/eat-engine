@@ -22,6 +22,12 @@ rect_rend_create :: proc() {
     rect_rend.pln = create_pipeline({
         vertex = { source = &vert },
         fragment = { source = &frag },
+        blend = BlendState{
+            src_color = .SrcAlpha, dst_color = .InvSrcAlpha,
+            color_op = .Add,
+            src_alpha = .One, dst_alpha = .InvSrcAlpha,
+            alpha_op = .Add,
+        },
     })
 
     rect_rend.ubo = create_buffer({
@@ -82,6 +88,12 @@ tex_rend_create :: proc() {
     tex_rend.pln = create_pipeline({
         vertex = { source = &vert },
         fragment = { source = &frag },
+        blend = BlendState{
+            src_color = .SrcAlpha, dst_color = .InvSrcAlpha,
+            color_op = .Add,
+            src_alpha = .One, dst_alpha = .InvSrcAlpha,
+            alpha_op = .Add,
+        },
     })
 
     tex_rend.ubo = create_buffer({

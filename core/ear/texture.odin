@@ -156,10 +156,8 @@ apply_texture_changes :: proc(tex: Texture) {
 @private
 TYPECONV_texture_filter :: proc(filter: TextureFilter) -> i32 {
     switch filter {
-    case .Nearest:
-        return gl.NEAREST
-    case .Linear:
-        return gl.LINEAR
+    case .Nearest: return gl.NEAREST
+    case .Linear:  return gl.LINEAR
     }
 
     assert(false)
@@ -169,12 +167,9 @@ TYPECONV_texture_filter :: proc(filter: TextureFilter) -> i32 {
 @private
 TYPECONV_texture_wrap :: proc(wrap: TextureWrap) -> i32 {
     switch wrap {
-    case .Repeat:
-        return gl.REPEAT
-    case .Clamp:
-        return gl.CLAMP_TO_EDGE
-    case .Color:
-        return gl.CLAMP_TO_BORDER
+    case .Repeat: return gl.REPEAT
+    case .Clamp:  return gl.CLAMP_TO_EDGE
+    case .Color:  return gl.CLAMP_TO_BORDER
     }
 
     assert(false)

@@ -101,14 +101,10 @@ update_buffer :: proc(buffer: ^Buffer) {
 @private
 TYPECONV_buffer_type :: proc(type: BufferType) -> u32 {
     switch type {
-    case .Uniform:
-        return gl.UNIFORM_BUFFER
-    case .Storage:
-        return gl.SHADER_STORAGE_BUFFER
-    case .Vertex:
-        return gl.ARRAY_BUFFER
-    case .Index:
-        return gl.ELEMENT_ARRAY_BUFFER
+    case .Uniform: return gl.UNIFORM_BUFFER
+    case .Storage: return gl.SHADER_STORAGE_BUFFER
+    case .Vertex:  return gl.ARRAY_BUFFER
+    case .Index:   return gl.ELEMENT_ARRAY_BUFFER
     }
 
     assert(false)
@@ -118,10 +114,8 @@ TYPECONV_buffer_type :: proc(type: BufferType) -> u32 {
 @private
 TYPECONV_buffer_usage :: proc(usage: BufferUsage) -> u32 {
     switch usage {
-    case .Dynamic:
-        return gl.DYNAMIC_DRAW
-    case .Static:
-        return gl.STATIC_DRAW
+    case .Dynamic: return gl.DYNAMIC_DRAW
+    case .Static:  return gl.STATIC_DRAW
     }
 
     assert(false)

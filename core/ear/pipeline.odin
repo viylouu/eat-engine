@@ -24,6 +24,8 @@ PipelineDesc :: struct{
 
     cull_mode: CullMode,
     front: FrontFace,
+
+    blend: Maybe(BlendState)
 }
 
 ShaderDesc :: struct{
@@ -40,7 +42,7 @@ VertexAttribDesc :: struct{
 }
 
 PrimitiveType :: enum{
-    Float
+    Float,
 }
 
 CullMode :: enum{
@@ -52,6 +54,34 @@ CullMode :: enum{
 FrontFace :: enum{
     CW,
     CCW,
+}
+
+BlendState :: struct{
+    src_color, dst_color: BlendFactor,
+    color_op: BlendOp,
+    src_alpha, dst_alpha: BlendFactor,
+    alpha_op: BlendOp,
+}
+
+BlendFactor :: enum{
+    Zero,
+    One,
+    SrcColor,
+    InvSrcColor,
+    DstColor,
+    InvDstColor,
+    SrcAlpha,
+    InvSrcAlpha,
+    DstAlpha,
+    InvDstAlpha,
+}
+
+BlendOp :: enum{
+    Add,
+    Subtract,
+    RevSubtract,
+    Min,
+    Max,
 }
 
 create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
@@ -158,6 +188,20 @@ bind_pipeline :: proc(pln: Pipeline) {
         gl.CullFace(TYPECONV_cull_mode(pln.desc.cull_mode))
         gl.FrontFace(TYPECONV_front_face(pln.desc.front))
     } else do gl.Disable(gl.CULL_FACE)
+
+    if blend, ok := pln.desc.blend.?; ok {
+        gl.Enable(gl.BLEND)
+        gl.BlendFuncSeparate(
+            TYPECONV_blend_factor(blend.src_color),
+            TYPECONV_blend_factor(blend.dst_color),
+            TYPECONV_blend_factor(blend.src_alpha),
+            TYPECONV_blend_factor(blend.dst_alpha),
+            )
+        gl.BlendEquationSeparate(
+            TYPECONV_blend_op(blend.color_op),
+            TYPECONV_blend_op(blend.alpha_op),
+            )
+    } else do gl.Disable(gl.BLEND)
 }
 
 
@@ -165,8 +209,7 @@ bind_pipeline :: proc(pln: Pipeline) {
 @private
 TYPECONV_primitive_type :: proc(type: PrimitiveType) -> u32 {
     switch type {
-    case .Float:
-        return gl.FLOAT
+    case .Float: return gl.FLOAT
     }
 
     assert(false)
@@ -176,12 +219,9 @@ TYPECONV_primitive_type :: proc(type: PrimitiveType) -> u32 {
 @private
 TYPECONV_cull_mode :: proc(mode: CullMode) -> u32 {
     switch mode {
-    case .None:
-        return gl.NONE
-    case .Front:
-        return gl.FRONT
-    case .Back:
-        return gl.BACK
+    case .None:  return gl.NONE
+    case .Front: return gl.FRONT
+    case .Back:  return gl.BACK
     }
 
     assert(false)
@@ -191,10 +231,41 @@ TYPECONV_cull_mode :: proc(mode: CullMode) -> u32 {
 @private
 TYPECONV_front_face :: proc(front: FrontFace) -> u32 {
     switch front {
-    case .CW:
-        return gl.CW
-    case .CCW:
-        return gl.CCW
+    case .CW:  return gl.CW
+    case .CCW: return gl.CCW
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_blend_factor :: proc(factor: BlendFactor) -> u32 {
+    switch factor {
+    case .Zero:        return gl.ZERO
+    case .One:         return gl.ONE
+    case .SrcColor:    return gl.SRC_COLOR
+    case .InvSrcColor: return gl.ONE_MINUS_SRC_COLOR
+    case .DstColor:    return gl.DST_COLOR
+    case .InvDstColor: return gl.ONE_MINUS_DST_COLOR
+    case .SrcAlpha:    return gl.SRC_ALPHA
+    case .InvSrcAlpha: return gl.ONE_MINUS_SRC_ALPHA
+    case .DstAlpha:    return gl.DST_ALPHA
+    case .InvDstAlpha: return gl.ONE_MINUS_DST_ALPHA
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_blend_op :: proc(op: BlendOp) -> u32 {
+    switch op {
+    case .Add:         return gl.FUNC_ADD
+    case .Subtract:    return gl.FUNC_SUBTRACT
+    case .RevSubtract: return gl.FUNC_REVERSE_SUBTRACT
+    case .Min:         return gl.MIN
+    case .Max:         return gl.MAX
     }
 
     assert(false)
