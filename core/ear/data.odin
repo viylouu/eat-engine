@@ -2,6 +2,12 @@ package ear
 
 import "core:math/linalg/glsl"
 
+@private
+last_used: enum{
+    Rect,
+    Tex,
+} = .Rect
+
 proj: glsl.mat4
 
 @private
