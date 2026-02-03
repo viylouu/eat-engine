@@ -45,7 +45,7 @@ rect :: proc{
 
 rect_rgba :: proc(x, y: f32, w, h: f32, col: [4]f32) {
     if int(rect_rend.ssbo_i) == len(rect_rend.ssbo_d) do flush_rect()
-    if last_used != .Rect do flush_rect()
+    if last_used != .Rect do flush()
     last_used = .Rect
 
     rect_rend.ssbo_d[rect_rend.ssbo_i] = { pos = {x,y}, size = {w,h}, col = col }
@@ -89,7 +89,7 @@ tex :: proc{
 tex_rgba_wh_samp :: proc(tex: ^Texture, x, y: f32, w, h: f32, sx,sy,sw,sh: f32, col: [4]f32) {
     if int(tex_rend.ssbo_i) == len(tex_rend.ssbo_d) do flush_tex()
     if tex != tex_rend.cur_tex && tex_rend.cur_tex != nil do flush_tex()
-    if last_used != .Tex do flush_tex()
+    if last_used != .Tex do flush()
     last_used = .Tex
 
     tex_rend.cur_tex = tex
