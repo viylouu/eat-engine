@@ -56,6 +56,9 @@ is_open :: proc() -> bool {
 }
 
 frame :: proc() {
+    mouse_scroll64 = { 0,0 }
+    mouse_scroll = { 0,0 }
+
     glfw.SwapBuffers(window)
     glfw.PollEvents()
 
