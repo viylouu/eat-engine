@@ -38,6 +38,8 @@ init :: proc(
     glfw.SetWindowSize(window, width, height)
 
     time = f32(glfw.GetTime())
+
+    init_input()
 }
 
 stop :: proc() {

@@ -52,6 +52,8 @@ mouse: [2]f32
 mouse64: [2]f64
 mouse_delta: [2]f32
 mouse_delta64: [2]f64
+mouse_scroll: [2]f32
+mouse_scroll64: [2]f64
 @private
 lmouse64: [2]f64
 
@@ -139,4 +141,13 @@ update_keys :: proc() {
     mouse_delta64 = mouse64 - lmouse64
     mouse_delta.x = f32(mouse_delta64.x)
     mouse_delta.y = f32(mouse_delta64.y)
+}
+
+scroll_cb :: proc "c" (window: glfw.WindowHandle, xoff, yoff: f64) {
+    mouse_scroll64 = { xoff, yoff }
+    mouse_scroll = { f32(xoff), f32(yoff) }
+}
+
+init_input :: proc() {
+    glfw.SetScrollCallback(window, scroll_cb)
 }
