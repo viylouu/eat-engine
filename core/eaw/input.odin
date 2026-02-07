@@ -56,6 +56,7 @@ mouse_scroll: [2]f32
 mouse_scroll64: [2]f64
 @private
 lmouse64: [2]f64
+lmouse_scroll64: [2]f64
 
 is_key :: proc(key: Key) -> bool { return keys[key] == .Pressed || keys[key] == .Held }
 is_key_pressed :: proc(key: Key) -> bool { return keys[key] == .Pressed }
@@ -144,8 +145,9 @@ update_keys :: proc() {
 }
 
 scroll_cb :: proc "c" (window: glfw.WindowHandle, xoff, yoff: f64) {
-    mouse_scroll64 = { xoff, yoff }
-    mouse_scroll = { f32(xoff), f32(yoff) }
+    lmouse_scroll64 = mouse_scroll64
+    mouse_scroll64 = { xoff, yoff } - lmouse_scroll64
+    mouse_scroll = { f32(mouse_scroll64.x), f32(mouse_scroll64.y) }
 }
 
 init_input :: proc() {
