@@ -134,7 +134,7 @@ flush_tex :: proc() {
     tex_rend.pln->bind()
     tex_rend.ssbo->bind(0)
     tex_rend.ubo->bind(1)
-    tex_rend.cur_tex->bind(0)
+    tex_rend.cur_tex->bind(2)
 
     draw(6, int(tex_rend.ssbo_i))
 
