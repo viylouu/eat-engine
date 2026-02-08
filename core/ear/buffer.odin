@@ -14,9 +14,7 @@ Buffer :: struct{
     desc: BufferDesc,
 
     delete: proc(buffer: Buffer),
-    // = 0 is only added to buffer to make slotless binds more clear
-    // it is reccomended not to leave slot blank if a bind uses a slot
-    bind: proc(buffer: Buffer, slot: u32 = 0),
+    bind: proc(buffer: Buffer, slot: u32),
 
     update: proc(buffer: ^Buffer),
 }
@@ -71,7 +69,7 @@ delete_buffer :: proc(buffer: Buffer) {
     gl.DeleteBuffers(1, raw_data( []u32{ buffer.id } ))
 }
 
-bind_buffer :: proc(buffer: Buffer, slot: u32 = 0) {
+bind_buffer :: proc(buffer: Buffer, slot: u32) {
     targ := TYPECONV_buffer_type(buffer.desc.type)
 
     gl.BindBuffer(targ, buffer.id)
