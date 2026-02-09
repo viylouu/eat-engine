@@ -77,6 +77,7 @@ create_tex_array :: proc(desc: TexArrayDesc) -> TexArray {
 }
 
 delete_tex_array :: proc(texarray: TexArray) {
+    gl.DeleteTextures(1, raw_data( []u32{ texarray.id } ))
     delete(texarray.texs)
 }
 
@@ -90,6 +91,8 @@ bind_tex_array :: proc(texarray: TexArray, slot: u32) {
 add_to_tex_array :: proc(texarray: ^TexArray, tex: ^Texture, #any_int layer: u32) {
     texarray.texs[layer] = tex
 
+    gl.BindTexture(gl.TEXTURE_2D_ARRAY, texarray.id)
+
     gl.TexSubImage3D(
         gl.TEXTURE_2D_ARRAY,
         0,
@@ -102,6 +105,8 @@ add_to_tex_array :: proc(texarray: ^TexArray, tex: ^Texture, #any_int layer: u32
         gl.UNSIGNED_BYTE,
         tex.pixels,
         )
+
+    gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 }
 
 update_tex_array :: proc(texarray: TexArray) {
@@ -112,6 +117,8 @@ update_tex_array :: proc(texarray: TexArray) {
 }
 
 update_tex_array_layer :: proc(texarray: TexArray, #any_int layer: u32) {
+    gl.BindTexture(gl.TEXTURE_2D_ARRAY, texarray.id)
+
     gl.TexSubImage3D(
         gl.TEXTURE_2D_ARRAY,
         0,
@@ -124,4 +131,6 @@ update_tex_array_layer :: proc(texarray: TexArray, #any_int layer: u32) {
         gl.UNSIGNED_BYTE,
         texarray.texs[layer].pixels,
         )
+
+    gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 }
