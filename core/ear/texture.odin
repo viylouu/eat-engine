@@ -27,7 +27,7 @@ TextureDesc :: struct{
     filter: TextureFilter,
     type: TextureType,
     wrap: TextureWrap,
-        wrap_color: [4]f32
+        wrap_color: [4]f32,
 }
 
 TextureFilter :: enum{
@@ -69,8 +69,8 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
 
     gl.BindTexture(gl.TEXTURE_2D, tex.id)
 
-    sampling := TYPECONV_texture_filter(tex.desc.filter)
-    wrap := TYPECONV_texture_wrap(tex.desc.wrap)
+    sampling := TYPECONV_texture_filter(desc.filter)
+    wrap := TYPECONV_texture_wrap(desc.wrap)
 
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, sampling)
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, sampling)
