@@ -37,6 +37,7 @@ create_tex_array :: proc(desc: TexArrayDesc) -> TexArray {
         texs = make([]^Texture, desc.layers),
 
         delete = delete_tex_array,
+        bind = bind_tex_array,
         add = add_to_tex_array,
         update = update_tex_array,
         update_layer = update_tex_array_layer,
