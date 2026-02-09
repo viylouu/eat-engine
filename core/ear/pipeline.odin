@@ -43,6 +43,7 @@ VertexAttribDesc :: struct{
 
 PrimitiveType :: enum{
     Float,
+    Int,
 }
 
 CullMode :: enum{
@@ -141,23 +142,24 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
     gl.BindVertexArray(pln.vao)
 
     for attrib in desc.vertex_attribs {
-        //bind_buffer(attrib.buffer^, 0)
+        switch attrib.type {
+        case .Float:
+            gl.VertexAttribFormat(
+                attrib.location,
+                i32(attrib.components),
+                gl.FLOAT,
+                attrib.norm? gl.TRUE : gl.FALSE,
+                attrib.offset,
+                )
+        case .Int:
+            gl.VertexAttribIFormat(
+                attrib.location,
+                i32(attrib.components),
+                gl.INT,
+                attrib.offset,
+                )
+        }
 
-        /*gl.VertexAttribPointer(
-            attrib.location, 
-            i32(attrib.components),
-            TYPECONV_primitive_type(attrib.type), 
-            attrib.norm? gl.TRUE : gl.FALSE,
-            i32(attrib.stride),
-            attrib.offset,
-            )*/
-        gl.VertexAttribFormat(
-            attrib.location,
-            i32(attrib.components),
-            TYPECONV_primitive_type(attrib.type),
-            attrib.norm? gl.TRUE : gl.FALSE,
-            attrib.offset,
-            )
         gl.VertexAttribBinding(
             attrib.location,
             attrib.slot,
@@ -206,15 +208,16 @@ bind_pipeline :: proc(pln: Pipeline) {
 
 
 
-@private
+/*@private
 TYPECONV_primitive_type :: proc(type: PrimitiveType) -> u32 {
     switch type {
     case .Float: return gl.FLOAT
+    case .Int: return gl.INT
     }
 
     assert(false)
     return 0
-}
+}*/
 
 @private
 TYPECONV_cull_mode :: proc(mode: CullMode) -> u32 {
