@@ -9,6 +9,7 @@ Texture :: struct{
     id: u32,
 
     pixels: [^]u8,
+    stbi_pixels: bool,
 
     width: u32,
     height: u32,
@@ -62,6 +63,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
         apply_changes = apply_texture_changes,
 
         pixels = pixels,
+        stbi_pixels = false,
     }
 
     gl.GenTextures(1, &tex.id)
@@ -100,14 +102,14 @@ load_texture :: proc(desc: TextureDesc, data: []u8) -> Texture {
     pixels := image.load_from_memory(raw_data(data), i32(len(data)), &width, &height, &chans, 4)
     assert(pixels != nil)
 
-    defer image.image_free(pixels)
-
     tex := create_texture(desc, pixels, u32(width), u32(height))
+    tex.stbi_pixels = true
     return tex
 }
 
 delete_texture :: proc(tex: Texture) {
     gl.DeleteTextures(1, raw_data( []u32{ tex.id } ))
+    if tex.stbi_pixels do image.image_free(tex.pixels)
 }
 
 // this sets the uniform aswell!
