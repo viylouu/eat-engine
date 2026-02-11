@@ -2,6 +2,8 @@ package ear
 
 import "core:fmt"
 
+import "../eau"
+
 import gl "vendor:OpenGL"
 
 Pipeline :: struct{
@@ -10,8 +12,8 @@ Pipeline :: struct{
 
     desc: PipelineDesc,
 
-    delete: proc(pln: Pipeline),
-    bind: proc(pln: Pipeline),
+    delete: proc(pln: ^Pipeline),
+    bind: proc(pln: ^Pipeline),
 }
 
 PipelineDesc :: struct{
@@ -85,13 +87,13 @@ BlendOp :: enum{
     Max,
 }
 
-create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
-    pln := Pipeline{ 
+create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipeline {
+    pln := new_clone(Pipeline{ 
         desc = desc,
 
         delete = delete_pipeline,
         bind = bind_pipeline,
-    }
+    })
 
     vsh := gl.CreateShader(gl.VERTEX_SHADER)
         defer gl.DeleteShader(vsh)
@@ -169,14 +171,17 @@ create_pipeline :: proc(desc: PipelineDesc) -> Pipeline {
 
     gl.BindVertexArray(0)
 
+    if arena != nil do arena->add(pln, rawptr(delete_pipeline))
     return pln
 }
 
-delete_pipeline :: proc(pln: Pipeline) {
+delete_pipeline :: proc(pln: ^Pipeline) {
     gl.DeleteProgram(pln.id)
+
+    free(pln)
 }
 
-bind_pipeline :: proc(pln: Pipeline) {
+bind_pipeline :: proc(pln: ^Pipeline) {
     gl.UseProgram(pln.id)
     gl.BindVertexArray(pln.vao)
 

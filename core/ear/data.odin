@@ -2,6 +2,10 @@ package ear
 
 import "core:math/linalg/glsl"
 
+import "../eau"
+
+arena: ^eau.Arena
+
 @private
 last_used: enum{
     Rect,
@@ -12,10 +16,10 @@ proj: glsl.mat4
 
 @private
 rect_rend: struct{
-    pln: Pipeline,
-    ubo: Buffer,
+    pln: ^Pipeline,
+    ubo: ^Buffer,
         ubo_d: struct{ proj: glsl.mat4 },
-    ssbo: Buffer,
+    ssbo: ^Buffer,
         ssbo_d: [4096]struct{ pos: [2]f32, size: [2]f32, col: [4]f32 },
         ssbo_i: u32,
 } = {}
@@ -34,27 +38,27 @@ rect_rend_create :: proc() {
             src_alpha = .One, dst_alpha = .InvSrcAlpha,
             alpha_op = .Add,
         },
-    })
+    }, arena)
 
     rect_rend.ubo = create_buffer({
         type = .Uniform,
         usage = .Dynamic,
         stride = size_of(rect_rend.ubo_d),
-    }, &rect_rend.ubo_d, size_of(rect_rend.ubo_d))
+    }, &rect_rend.ubo_d, size_of(rect_rend.ubo_d), arena)
 
     rect_rend.ssbo = create_buffer({
         type = .Storage,
         usage = .Dynamic,
         stride = size_of(rect_rend.ssbo_d[0]),
-    }, &rect_rend.ssbo_d, size_of(rect_rend.ssbo_d))
+    }, &rect_rend.ssbo_d, size_of(rect_rend.ssbo_d), arena)
 }
 
-@private
+/*@private
 rect_rend_delete :: proc() {
     rect_rend.ssbo->delete()
     rect_rend.ubo->delete()
     rect_rend.pln->delete()
-}
+}*/
 
 @private
 flush_rect :: proc() {
@@ -77,10 +81,10 @@ flush_rect :: proc() {
 
 @private
 tex_rend: struct{
-    pln: Pipeline,
-    ubo: Buffer,
+    pln: ^Pipeline,
+    ubo: ^Buffer,
         ubo_d: struct{ proj: glsl.mat4 },
-    ssbo: Buffer,
+    ssbo: ^Buffer,
         ssbo_d: [4096]struct{ pos: [2]f32, size: [2]f32, col: [4]f32, samp: [4]f32 },
         ssbo_i: u32,
     cur_tex: ^Texture,
@@ -100,27 +104,27 @@ tex_rend_create :: proc() {
             src_alpha = .One, dst_alpha = .InvSrcAlpha,
             alpha_op = .Add,
         },
-    })
+    }, arena)
 
     tex_rend.ubo = create_buffer({
         type = .Uniform,
         usage = .Dynamic,
         stride = size_of(tex_rend.ubo_d),
-    }, &tex_rend.ubo_d, size_of(tex_rend.ubo_d))
+    }, &tex_rend.ubo_d, size_of(tex_rend.ubo_d), arena)
 
     tex_rend.ssbo = create_buffer({
         type = .Storage,
         usage = .Dynamic,
         stride = size_of(tex_rend.ssbo_d[0]),
-    }, &tex_rend.ssbo_d, size_of(tex_rend.ssbo_d))
+    }, &tex_rend.ssbo_d, size_of(tex_rend.ssbo_d), arena)
 }
 
-@private
+/*@private
 tex_rend_delete :: proc() {
     tex_rend.ssbo->delete()
     tex_rend.ubo->delete()
     tex_rend.pln->delete()
-}
+}*/
 
 @private
 flush_tex :: proc() {

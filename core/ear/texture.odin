@@ -2,6 +2,8 @@ package ear
 
 import "core:fmt"
 
+import "../eau"
+
 import gl "vendor:OpenGL"
 import "vendor:stb/image"
 
@@ -16,12 +18,12 @@ Texture :: struct{
 
     desc: TextureDesc,
 
-    delete: proc(tex: Texture),
-    bind: proc(tex: Texture, slot: u32), // this sets the uniform aswell!
+    delete: proc(tex: ^Texture),
+    bind: proc(tex: ^Texture, slot: u32), // this sets the uniform aswell!
 
-    get_color: proc(tex: Texture, #any_int x,y: u32) -> [4]f32,
+    get_color: proc(tex: ^Texture, #any_int x,y: u32) -> [4]f32,
     set_color: proc(tex: ^Texture, #any_int x,y: u32, col: [4]f32),
-    apply_changes: proc(tex: Texture),
+    apply_changes: proc(tex: ^Texture),
 }
 
 TextureDesc :: struct{
@@ -50,8 +52,8 @@ TextureWrap :: enum{
 // in order to get/set color, you need to supply an array for pixels
 // you may not supply null
 // array size should be at LEAST width * height * 4
-create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> Texture {
-    tex := Texture{ 
+create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, arena: ^eau.Arena = nil) -> ^Texture {
+    tex := new_clone(Texture{ 
         desc = desc, 
         width = width, height = height,
 
@@ -64,7 +66,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
 
         pixels = pixels,
         stbi_pixels = false,
-    }
+    })
 
     gl.GenTextures(1, &tex.id)
     assert(tex.id != 0)
@@ -94,10 +96,11 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32) -> 
 
     gl.BindTexture(gl.TEXTURE_2D, 0)
 
+    if arena != nil do arena->add(tex, rawptr(delete_texture))
     return tex
 }
 
-load_texture :: proc(desc: TextureDesc, data: []u8) -> Texture {
+load_texture :: proc(desc: TextureDesc, data: []u8) -> ^Texture {
     width,height, chans: i32
     pixels := image.load_from_memory(raw_data(data), i32(len(data)), &width, &height, &chans, 4)
     assert(pixels != nil)
@@ -107,19 +110,19 @@ load_texture :: proc(desc: TextureDesc, data: []u8) -> Texture {
     return tex
 }
 
-delete_texture :: proc(tex: Texture) {
+delete_texture :: proc(tex: ^Texture) {
     gl.DeleteTextures(1, raw_data( []u32{ tex.id } ))
     if tex.stbi_pixels do image.image_free(tex.pixels)
 }
 
 // this sets the uniform aswell!
-bind_texture :: proc(tex: Texture, slot: u32) {
+bind_texture :: proc(tex: ^Texture, slot: u32) {
     gl.ActiveTexture(gl.TEXTURE0 + slot)
     gl.BindTexture(gl.TEXTURE_2D, tex.id)
     gl.Uniform1i(i32(slot), i32(slot))
 }
 
-get_texture_color :: proc(tex: Texture, #any_int x,y: u32) -> [4]f32 {
+get_texture_color :: proc(tex: ^Texture, #any_int x,y: u32) -> [4]f32 {
     i := (x + y * tex.width) * 4
     return { 
         f32(tex.pixels[i + 0]) / 255,
@@ -137,7 +140,7 @@ set_texture_color :: proc(tex: ^Texture, #any_int x,y: u32, col: [4]f32) {
     tex.pixels[i + 3] = u8(col.a * 255)
 }
 
-apply_texture_changes :: proc(tex: Texture) {
+apply_texture_changes :: proc(tex: ^Texture) {
     gl.BindTexture(gl.TEXTURE_2D, tex.id)
 
     gl.TexSubImage2D(

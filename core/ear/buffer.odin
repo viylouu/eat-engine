@@ -2,6 +2,8 @@ package ear
 
 import "core:fmt"
 
+import "../eau"
+
 import gl "vendor:OpenGL"
 
 Buffer :: struct{
@@ -13,8 +15,8 @@ Buffer :: struct{
 
     desc: BufferDesc,
 
-    delete: proc(buffer: Buffer),
-    bind: proc(buffer: Buffer, slot: u32),
+    delete: proc(buffer: ^Buffer),
+    bind: proc(buffer: ^Buffer, slot: u32),
 
     update: proc(buffer: ^Buffer),
 }
@@ -37,8 +39,8 @@ BufferUsage :: enum{
     Static
 }
 
-create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32) -> Buffer {
-    buf := Buffer{ 
+create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32, arena: ^eau.Arena = nil) -> ^Buffer {
+    buf := new_clone(Buffer{ 
         desc = desc, 
         data = db, 
         size = size, prev_size = size,
@@ -47,7 +49,7 @@ create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32) -> Buffer {
         bind = bind_buffer,
 
         update = update_buffer,
-    }
+    })
 
     gl.GenBuffers(1, &buf.id)
 
@@ -62,14 +64,17 @@ create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32) -> Buffer {
         )
     gl.BindBuffer(targ, 0)
 
+    if arena != nil do arena->add(buf, rawptr(delete_buffer))
     return buf
 }
 
-delete_buffer :: proc(buffer: Buffer) {
+delete_buffer :: proc(buffer: ^Buffer) {
     gl.DeleteBuffers(1, raw_data( []u32{ buffer.id } ))
+
+    free(buffer)
 }
 
-bind_buffer :: proc(buffer: Buffer, slot: u32) {
+bind_buffer :: proc(buffer: ^Buffer, slot: u32) {
     targ := TYPECONV_buffer_type(buffer.desc.type)
 
     gl.BindBuffer(targ, buffer.id)

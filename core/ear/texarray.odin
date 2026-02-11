@@ -1,5 +1,7 @@
 package ear
 
+import "../eau"
+
 import gl "vendor:OpenGL"
 
 TexArray :: struct{
@@ -11,11 +13,11 @@ TexArray :: struct{
 
     desc: TexArrayDesc,
     
-    delete: proc(texarray: TexArray),
-    bind: proc(texarray: TexArray, slot: u32), // this sets the uniform aswell!
+    delete: proc(texarray: ^TexArray),
+    bind: proc(texarray: ^TexArray, slot: u32), // this sets the uniform aswell!
     add: proc(texarray: ^TexArray, tex: ^Texture, #any_int layer: u32),
-    update: proc(texarray: TexArray),
-    update_layer: proc(texarray: TexArray, #any_int layer: u32),
+    update: proc(texarray: ^TexArray),
+    update_layer: proc(texarray: ^TexArray, #any_int layer: u32),
 }
 
 TexArrayDesc :: struct{
@@ -30,8 +32,8 @@ TexArrayDesc :: struct{
 }
 
 
-create_tex_array :: proc(desc: TexArrayDesc) -> TexArray {
-    texarray := TexArray{ 
+create_tex_array :: proc(desc: TexArrayDesc, arena: ^eau.Arena = nil) -> ^TexArray {
+    texarray := new_clone(TexArray{ 
         desc = desc,
 
         texs = make([]^Texture, desc.layers),
@@ -41,7 +43,7 @@ create_tex_array :: proc(desc: TexArrayDesc) -> TexArray {
         add = add_to_tex_array,
         update = update_tex_array,
         update_layer = update_tex_array_layer,
-    }
+    })
 
     gl.GenTextures(1, &texarray.id)
     assert(texarray.id != 0)
@@ -73,16 +75,19 @@ create_tex_array :: proc(desc: TexArrayDesc) -> TexArray {
 
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 
+    if arena != nil do arena->add(texarray, rawptr(delete_tex_array))
     return texarray
 }
 
-delete_tex_array :: proc(texarray: TexArray) {
+delete_tex_array :: proc(texarray: ^TexArray) {
     gl.DeleteTextures(1, raw_data( []u32{ texarray.id } ))
     delete(texarray.texs)
+
+    free(texarray)
 }
 
 // this sets the uniform aswell!
-bind_tex_array :: proc(texarray: TexArray, slot: u32) {
+bind_tex_array :: proc(texarray: ^TexArray, slot: u32) {
     gl.ActiveTexture(gl.TEXTURE0 + slot)
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, texarray.id)
     gl.Uniform1i(i32(slot), i32(slot))
@@ -109,14 +114,14 @@ add_to_tex_array :: proc(texarray: ^TexArray, tex: ^Texture, #any_int layer: u32
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 }
 
-update_tex_array :: proc(texarray: TexArray) {
+update_tex_array :: proc(texarray: ^TexArray) {
     for tex,i in texarray.texs {
         if tex == nil do continue
         texarray->update_layer(i)
     }
 }
 
-update_tex_array_layer :: proc(texarray: TexArray, #any_int layer: u32) {
+update_tex_array_layer :: proc(texarray: ^TexArray, #any_int layer: u32) {
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, texarray.id)
 
     gl.TexSubImage3D(
