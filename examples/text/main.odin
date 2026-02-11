@@ -22,6 +22,6 @@ main :: proc() {
     for eat.frame() {
         ear.clear([3]f32{ .2, .4, .3 })
 
-        ear.text(&font, "hello\n\tworld!!!!", 0,0, 16, 1)
+        ear.text(font, "hello\n\tworld!!!!", 0,0, 16, 1)
     }
 }
