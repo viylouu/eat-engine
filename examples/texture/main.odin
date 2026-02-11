@@ -22,6 +22,6 @@ main :: proc() {
     for eat.frame() {
         ear.clear([3]f32{ .2, .4, .3 })
 
-        ear.tex(&tex, { 0,0 }, 1)
+        ear.tex(tex, { 0,0 }, 1)
     }
 }

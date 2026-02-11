@@ -12,6 +12,8 @@ Pipeline :: struct{
 
     desc: PipelineDesc,
 
+    obj: ^^eau.Object,
+
     delete: proc(pln: ^Pipeline),
     bind: proc(pln: ^Pipeline),
 }
@@ -171,13 +173,14 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
 
     gl.BindVertexArray(0)
 
-    if arena != nil do arena->add(pln, rawptr(delete_pipeline))
+    if arena != nil do pln.obj = arena->add(pln, rawptr(delete_pipeline))
     return pln
 }
 
 delete_pipeline :: proc(pln: ^Pipeline) {
     gl.DeleteProgram(pln.id)
 
+    if pln.obj != nil { free(pln.obj^); pln.obj^ = nil }
     free(pln)
 }
 

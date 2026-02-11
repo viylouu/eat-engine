@@ -12,6 +12,8 @@ TexArray :: struct{
     texs: []^Texture,
 
     desc: TexArrayDesc,
+
+    obj: ^^eau.Object,
     
     delete: proc(texarray: ^TexArray),
     bind: proc(texarray: ^TexArray, slot: u32), // this sets the uniform aswell!
@@ -75,7 +77,7 @@ create_tex_array :: proc(desc: TexArrayDesc, arena: ^eau.Arena = nil) -> ^TexArr
 
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 
-    if arena != nil do arena->add(texarray, rawptr(delete_tex_array))
+    if arena != nil do texarray.obj = arena->add(texarray, rawptr(delete_tex_array))
     return texarray
 }
 
@@ -83,6 +85,7 @@ delete_tex_array :: proc(texarray: ^TexArray) {
     gl.DeleteTextures(1, raw_data( []u32{ texarray.id } ))
     delete(texarray.texs)
 
+    if texarray.obj != nil { free(texarray.obj^); texarray.obj^ = nil }
     free(texarray)
 }
 

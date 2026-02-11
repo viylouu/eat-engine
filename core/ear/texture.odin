@@ -18,6 +18,8 @@ Texture :: struct{
 
     desc: TextureDesc,
 
+    obj: ^^eau.Object,
+
     delete: proc(tex: ^Texture),
     bind: proc(tex: ^Texture, slot: u32), // this sets the uniform aswell!
 
@@ -96,7 +98,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
 
     gl.BindTexture(gl.TEXTURE_2D, 0)
 
-    if arena != nil do arena->add(tex, rawptr(delete_texture))
+    if arena != nil do tex.obj = arena->add(tex, rawptr(delete_texture))
     return tex
 }
 
@@ -113,6 +115,9 @@ load_texture :: proc(desc: TextureDesc, data: []u8, arena: ^eau.Arena = nil) -> 
 delete_texture :: proc(tex: ^Texture) {
     gl.DeleteTextures(1, raw_data( []u32{ tex.id } ))
     if tex.stbi_pixels do image.image_free(tex.pixels)
+
+    if tex.obj != nil { free(tex.obj^); tex.obj^ = nil }
+    free(tex)
 }
 
 // this sets the uniform aswell!

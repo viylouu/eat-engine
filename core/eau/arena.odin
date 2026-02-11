@@ -5,10 +5,10 @@ package eau
 // before you use this (using the add function) READ THE CODE
 
 Arena :: struct{
-    objs: [dynamic]Object,
+    objs: [dynamic]^Object,
 
     delete: proc(arena: ^Arena),
-    add: proc(arena: ^Arena, data: rawptr, delete: rawptr),
+    add: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Object,
 }
 
 Object :: struct {
@@ -18,7 +18,7 @@ Object :: struct {
 
 create_arena :: proc() -> ^Arena {
     arena := new_clone(Arena{
-        objs = make([dynamic]Object),
+        objs = make([dynamic]^Object),
 
         delete = delete_arena,
         add = add_to_arena,
@@ -28,15 +28,20 @@ create_arena :: proc() -> ^Arena {
 }
 
 delete_arena :: proc(arena: ^Arena) {
-    for &obj in arena.objs do obj.delete(obj.data)
+    for &obj in arena.objs do if obj != nil { 
+        obj.delete(obj.data) 
+        free(obj)
+    }
     delete(arena.objs)
 
     free(arena)
 }
 
-add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: rawptr) {
-    append(&arena.objs, Object{
+add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Object {
+    obj := new_clone(Object{
         data = (^any)(data),
         delete = proc(^any)(delete),
     })
+    append(&arena.objs, obj)
+    return &arena.objs[len(arena.objs)-1] // holy shit
 }
