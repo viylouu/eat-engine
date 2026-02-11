@@ -100,12 +100,12 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
     return tex
 }
 
-load_texture :: proc(desc: TextureDesc, data: []u8) -> ^Texture {
+load_texture :: proc(desc: TextureDesc, data: []u8, arena: ^eau.Arena = nil) -> ^Texture {
     width,height, chans: i32
     pixels := image.load_from_memory(raw_data(data), i32(len(data)), &width, &height, &chans, 4)
     assert(pixels != nil)
 
-    tex := create_texture(desc, pixels, u32(width), u32(height))
+    tex := create_texture(desc, pixels, u32(width), u32(height), arena)
     tex.stbi_pixels = true
     return tex
 }
