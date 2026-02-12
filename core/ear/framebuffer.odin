@@ -12,8 +12,7 @@ Framebuffer :: struct{
     id: u32,
 
     desc: FramebufferDesc,
-
-    obj: ^^eau.Object,
+    dest: ^^eau.Destructor,
 
     delete: proc(fb: ^Framebuffer),
     bind: proc(fb: ^Framebuffer),
@@ -25,6 +24,7 @@ FramebufferDesc :: struct{
     width: u32,
     height: u32,
 }
+
 
 create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^Framebuffer {
     fb := new_clone(Framebuffer{ 
@@ -71,14 +71,14 @@ create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^F
 
     gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)
 
-    if arena != nil do fb.obj = arena->add(fb, rawptr(delete_framebuffer))
+    if arena != nil do fb.dest = arena->add(fb, rawptr(delete_framebuffer))
     return fb
 }
 
 delete_framebuffer :: proc(fb: ^Framebuffer) {
     gl.DeleteFramebuffers(1, raw_data([]u32 { fb.id }))
 
-    if fb.obj != nil { free(fb.obj^); fb.obj^ = nil }
+    if fb.dest != nil { free(fb.dest^); fb.dest^ = nil }
     free(fb)
 }
 

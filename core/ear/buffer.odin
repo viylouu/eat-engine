@@ -14,8 +14,7 @@ Buffer :: struct{
     data: rawptr,
 
     desc: BufferDesc,
-
-    obj: ^^eau.Object,
+    dest: ^^eau.Destructor,
 
     delete: proc(buffer: ^Buffer),
     bind: proc(buffer: ^Buffer, slot: u32),
@@ -40,6 +39,7 @@ BufferUsage :: enum{
     Dynamic,
     Static
 }
+
 
 create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32, arena: ^eau.Arena = nil) -> ^Buffer {
     buf := new_clone(Buffer{ 
@@ -66,14 +66,14 @@ create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32, arena: ^eau.Arena
         )
     gl.BindBuffer(targ, 0)
 
-    if arena != nil do buf.obj = arena->add(buf, rawptr(delete_buffer))
+    if arena != nil do buf.dest = arena->add(buf, rawptr(delete_buffer))
     return buf
 }
 
 delete_buffer :: proc(buffer: ^Buffer) {
     gl.DeleteBuffers(1, raw_data( []u32{ buffer.id } ))
 
-    if buffer.obj != nil { free(buffer.obj^); buffer.obj^ = nil }
+    if buffer.dest != nil { free(buffer.dest^); buffer.dest^ = nil }
     free(buffer)
 }
 

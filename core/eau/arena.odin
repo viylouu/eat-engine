@@ -5,20 +5,21 @@ package eau
 // before you use this (using the add function) READ THE CODE
 
 Arena :: struct{
-    objs: [dynamic]^Object,
+    dests: [dynamic]^Destructor,
 
     delete: proc(arena: ^Arena),
-    add: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Object,
+    add: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Destructor,
 }
 
-Object :: struct {
+Destructor :: struct {
     data: ^any,
     delete: proc(^any),
 }
 
+
 create_arena :: proc() -> ^Arena {
     arena := new_clone(Arena{
-        objs = make([dynamic]^Object),
+        dests = make([dynamic]^Destructor),
 
         delete = delete_arena,
         add = add_to_arena,
@@ -28,20 +29,20 @@ create_arena :: proc() -> ^Arena {
 }
 
 delete_arena :: proc(arena: ^Arena) {
-    for &obj in arena.objs do if obj != nil { 
-        obj.delete(obj.data) 
-        free(obj)
+    for &dest in arena.dests do if dest != nil { 
+        dest.delete(dest.data) 
+        //free(dest) // this is done by delete (or else the function is WRONG)
     }
-    delete(arena.objs)
+    delete(arena.dests)
 
     free(arena)
 }
 
-add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Object {
-    obj := new_clone(Object{
+add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Destructor {
+    dest := new_clone(Destructor{
         data = (^any)(data),
         delete = proc(^any)(delete),
     })
-    append(&arena.objs, obj)
-    return &arena.objs[len(arena.objs)-1] // holy shit
+    append(&arena.dests, dest)
+    return &arena.dests[len(arena.dests)-1] // holy shit
 }

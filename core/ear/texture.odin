@@ -17,8 +17,7 @@ Texture :: struct{
     height: u32,
 
     desc: TextureDesc,
-
-    obj: ^^eau.Object,
+    dest: ^^eau.Destructor,
 
     delete: proc(tex: ^Texture),
     bind: proc(tex: ^Texture, slot: u32), // this sets the uniform aswell!
@@ -50,6 +49,7 @@ TextureWrap :: enum{
     Clamp,
     Color,
 }
+
 
 // in order to get/set color, you need to supply an array for pixels
 // you may not supply null
@@ -98,7 +98,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
 
     gl.BindTexture(gl.TEXTURE_2D, 0)
 
-    if arena != nil do tex.obj = arena->add(tex, rawptr(delete_texture))
+    if arena != nil do tex.dest = arena->add(tex, rawptr(delete_texture))
     return tex
 }
 
@@ -116,7 +116,7 @@ delete_texture :: proc(tex: ^Texture) {
     gl.DeleteTextures(1, raw_data( []u32{ tex.id } ))
     if tex.stbi_pixels do image.image_free(tex.pixels)
 
-    if tex.obj != nil { free(tex.obj^); tex.obj^ = nil }
+    if tex.dest != nil { free(tex.dest^); tex.dest^ = nil }
     free(tex)
 }
 

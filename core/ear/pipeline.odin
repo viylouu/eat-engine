@@ -11,8 +11,7 @@ Pipeline :: struct{
     vao: u32,
 
     desc: PipelineDesc,
-
-    obj: ^^eau.Object,
+    dest: ^^eau.Destructor,
 
     delete: proc(pln: ^Pipeline),
     bind: proc(pln: ^Pipeline),
@@ -88,6 +87,7 @@ BlendOp :: enum{
     Min,
     Max,
 }
+
 
 create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipeline {
     pln := new_clone(Pipeline{ 
@@ -173,14 +173,14 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
 
     gl.BindVertexArray(0)
 
-    if arena != nil do pln.obj = arena->add(pln, rawptr(delete_pipeline))
+    if arena != nil do pln.dest = arena->add(pln, rawptr(delete_pipeline))
     return pln
 }
 
 delete_pipeline :: proc(pln: ^Pipeline) {
     gl.DeleteProgram(pln.id)
 
-    if pln.obj != nil { free(pln.obj^); pln.obj^ = nil }
+    if pln.dest != nil { free(pln.dest^); pln.dest^ = nil }
     free(pln)
 }
 
