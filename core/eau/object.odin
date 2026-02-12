@@ -7,6 +7,7 @@ Object :: struct{
 
     desc: ObjectDesc,
     dest: ^^Destructor,
+    data: rawptr,
 
     delete: proc(obj: ^Object),
     init: proc(obj: ^Object),
@@ -20,12 +21,21 @@ ObjectDesc :: struct{
 }
 
 
-create_object :: proc(desc: ObjectDesc, arena: ^Arena = nil) -> ^Object {
+// if this (the data param) is confusing, heres why:
+// data needs to be a struct with `using [NAME]: ^Object` in it
+// and then it has other data, and you reference it in the param
+// this is for ease of user use
+create_object :: proc(desc: ObjectDesc, data: ^^Object, arena: ^Arena = nil) -> ^Object {
     obj := new_clone(Object{
         desc = desc,
+        data = data,
 
         delete = delete_object,
+        init = init_object,
+        frame = frame_object,
     })
+
+    data^ = obj
 
     if arena != nil do obj.dest = arena->add(obj, rawptr(delete_object))
     return obj
@@ -45,3 +55,4 @@ init_object :: proc(obj: ^Object) {
 frame_object :: proc(obj: ^Object) {
     if frame,ok := obj.desc.frame.?; ok do frame(obj)
 }
+
