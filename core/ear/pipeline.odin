@@ -28,7 +28,9 @@ PipelineDesc :: struct{
     cull_mode: CullMode,
     front: FrontFace,
 
-    blend: Maybe(BlendState)
+    blend: Maybe(BlendState),
+
+    fill_mode: FillMode,
 }
 
 ShaderDesc :: struct{
@@ -86,6 +88,11 @@ BlendOp :: enum{
     RevSubtract,
     Min,
     Max,
+}
+
+FillMode :: enum{
+    Fill,
+    Line,
 }
 
 
@@ -212,6 +219,8 @@ bind_pipeline :: proc(pln: ^Pipeline) {
             TYPECONV_blend_op(blend.alpha_op),
             )
     } else do gl.Disable(gl.BLEND)
+
+    gl.PolygonMode(gl.FRONT_AND_BACK, TYPECONV_fill_mode(pln.desc.fill_mode))
 }
 
 
@@ -277,6 +286,17 @@ TYPECONV_blend_op :: proc(op: BlendOp) -> u32 {
     case .RevSubtract: return gl.FUNC_REVERSE_SUBTRACT
     case .Min:         return gl.MIN
     case .Max:         return gl.MAX
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_fill_mode :: proc(fill: FillMode) -> u32 {
+    switch fill {
+    case .Fill: return gl.FILL
+    case .Line: return gl.LINE
     }
 
     assert(false)
