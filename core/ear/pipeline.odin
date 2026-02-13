@@ -11,7 +11,7 @@ Pipeline :: struct{
     vao: u32,
 
     desc: PipelineDesc,
-    dest: ^^eau.Destructor,
+    dest: ^eau.Destructor,
 
     delete: proc(pln: ^Pipeline),
     bind: proc(pln: ^Pipeline),
@@ -180,7 +180,7 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
 delete_pipeline :: proc(pln: ^Pipeline) {
     gl.DeleteProgram(pln.id)
 
-    if pln.dest != nil { free(pln.dest^); pln.dest^ = nil }
+    if pln.dest != nil do pln.dest.data = nil
     free(pln)
 }
 

@@ -14,7 +14,7 @@ Buffer :: struct{
     data: rawptr,
 
     desc: BufferDesc,
-    dest: ^^eau.Destructor,
+    dest: ^eau.Destructor,
 
     delete: proc(buffer: ^Buffer),
     bind: proc(buffer: ^Buffer, slot: u32),
@@ -73,7 +73,7 @@ create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32, arena: ^eau.Arena
 delete_buffer :: proc(buffer: ^Buffer) {
     gl.DeleteBuffers(1, raw_data( []u32{ buffer.id } ))
 
-    if buffer.dest != nil { free(buffer.dest^); buffer.dest^ = nil }
+    if buffer.dest != nil do buffer.dest.data = nil
     free(buffer)
 }
 

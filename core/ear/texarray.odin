@@ -12,7 +12,7 @@ TexArray :: struct{
     texs: []^Texture,
 
     desc: TexArrayDesc,
-    dest: ^^eau.Destructor,
+    dest: ^eau.Destructor,
     
     delete: proc(texarray: ^TexArray),
     bind: proc(texarray: ^TexArray, slot: u32), // this sets the uniform aswell!
@@ -84,7 +84,7 @@ delete_tex_array :: proc(texarray: ^TexArray) {
     gl.DeleteTextures(1, raw_data( []u32{ texarray.id } ))
     delete(texarray.texs)
 
-    if texarray.dest != nil { free(texarray.dest^); texarray.dest^ = nil }
+    if texarray.dest != nil do texarray.dest.data = nil
     free(texarray)
 }
 

@@ -12,7 +12,7 @@ Framebuffer :: struct{
     id: u32,
 
     desc: FramebufferDesc,
-    dest: ^^eau.Destructor,
+    dest: ^eau.Destructor,
 
     delete: proc(fb: ^Framebuffer),
     bind: proc(fb: ^Framebuffer),
@@ -78,7 +78,7 @@ create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^F
 delete_framebuffer :: proc(fb: ^Framebuffer) {
     gl.DeleteFramebuffers(1, raw_data([]u32 { fb.id }))
 
-    if fb.dest != nil { free(fb.dest^); fb.dest^ = nil }
+    if fb.dest != nil do fb.dest.data = nil
     free(fb)
 }
 

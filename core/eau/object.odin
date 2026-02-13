@@ -6,7 +6,7 @@ Object :: struct{
     rot: [3]f32,
 
     desc: ObjectDesc,
-    dest: ^^Destructor,
+    dest: ^Destructor,
     data: rawptr,
 
     delete: proc(obj: ^Object),
@@ -44,7 +44,7 @@ create_object :: proc(desc: ObjectDesc, data: ^^Object, arena: ^Arena = nil) -> 
 delete_object :: proc(obj: ^Object) {
     if delete,ok := obj.desc.delete.?; ok do delete(obj)
 
-    if obj.dest != nil { free(obj.dest^); obj.dest^ = nil }
+    if obj.dest != nil do obj.dest.data = nil
     free(obj)
 }
 

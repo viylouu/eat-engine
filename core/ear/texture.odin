@@ -17,7 +17,7 @@ Texture :: struct{
     height: u32,
 
     desc: TextureDesc,
-    dest: ^^eau.Destructor,
+    dest: ^eau.Destructor,
 
     delete: proc(tex: ^Texture),
     bind: proc(tex: ^Texture, slot: u32), // this sets the uniform aswell!
@@ -116,7 +116,7 @@ delete_texture :: proc(tex: ^Texture) {
     gl.DeleteTextures(1, raw_data( []u32{ tex.id } ))
     if tex.stbi_pixels do image.image_free(tex.pixels)
 
-    if tex.dest != nil { free(tex.dest^); tex.dest^ = nil }
+    if tex.dest != nil do tex.dest.data = nil
     free(tex)
 }
 

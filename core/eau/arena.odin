@@ -4,7 +4,7 @@ Arena :: struct{
     dests: [dynamic]^Destructor,
 
     delete: proc(arena: ^Arena),
-    add: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^^Destructor,
+    add: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^Destructor,
 }
 
 Destructor :: struct {
@@ -25,20 +25,21 @@ create_arena :: proc() -> ^Arena {
 }
 
 delete_arena :: proc(arena: ^Arena) {
-    for &dest in arena.dests do if dest != nil { 
-        dest.delete(dest.data) 
-        //free(dest) // this is done by delete (or else the function is WRONG)
+    for &dest in arena.dests do if dest != nil {
+        if dest.data != nil do dest.delete(dest.data) 
+        free(dest)
     }
     delete(arena.dests)
 
     free(arena)
 }
 
-add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^^Destructor {
+add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^Destructor {
     dest := new_clone(Destructor{
         data = data,
         delete = delete,
     })
     append(&arena.dests, dest)
-    return &arena.dests[len(arena.dests)-1]
+    return dest
 }
+
