@@ -37,7 +37,7 @@ create_object :: proc(desc: ObjectDesc, data: ^^Object, arena: ^Arena = nil) -> 
 
     data^ = obj
 
-    if arena != nil do obj.dest = arena->add(obj, rawptr(delete_object))
+    if arena != nil do obj.dest = arena->add(obj, proc(p: rawptr){ delete_object((^Object)(p)) })
     return obj
 }
 

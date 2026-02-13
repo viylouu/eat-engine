@@ -76,7 +76,7 @@ create_tex_array :: proc(desc: TexArrayDesc, arena: ^eau.Arena = nil) -> ^TexArr
 
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 
-    if arena != nil do texarray.dest = arena->add(texarray, rawptr(delete_tex_array))
+    if arena != nil do texarray.dest = arena->add(texarray, proc(p: rawptr){ delete_tex_array((^TexArray)(p)) })
     return texarray
 }
 

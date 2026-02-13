@@ -1,19 +1,15 @@
 package eau
 
-// this is the LEAST safe code i have EVER written
-// HOW DOES THIS WORK CORRECTLY????
-// before you use this (using the add function) READ THE CODE
-
 Arena :: struct{
     dests: [dynamic]^Destructor,
 
     delete: proc(arena: ^Arena),
-    add: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Destructor,
+    add: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^^Destructor,
 }
 
 Destructor :: struct {
-    data: ^any,
-    delete: proc(^any),
+    data: rawptr,
+    delete: proc(rawptr),
 }
 
 
@@ -38,11 +34,11 @@ delete_arena :: proc(arena: ^Arena) {
     free(arena)
 }
 
-add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: rawptr) -> ^^Destructor {
+add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^^Destructor {
     dest := new_clone(Destructor{
-        data = (^any)(data),
-        delete = proc(^any)(delete),
+        data = data,
+        delete = delete,
     })
     append(&arena.dests, dest)
-    return &arena.dests[len(arena.dests)-1] // holy shit
+    return &arena.dests[len(arena.dests)-1]
 }

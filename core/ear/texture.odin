@@ -98,7 +98,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
 
     gl.BindTexture(gl.TEXTURE_2D, 0)
 
-    if arena != nil do tex.dest = arena->add(tex, rawptr(delete_texture))
+    if arena != nil do tex.dest = arena->add(tex, proc(p: rawptr){ delete_texture((^Texture)(p)) })
     return tex
 }
 

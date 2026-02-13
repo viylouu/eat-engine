@@ -173,7 +173,7 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
 
     gl.BindVertexArray(0)
 
-    if arena != nil do pln.dest = arena->add(pln, rawptr(delete_pipeline))
+    if arena != nil do pln.dest = arena->add(pln, proc(p: rawptr){ delete_pipeline((^Pipeline)(p)) })
     return pln
 }
 
