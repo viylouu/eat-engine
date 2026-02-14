@@ -149,7 +149,7 @@ gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: 
 
     dir := -supp
 
-    for {
+    for i in 0..<64 {
         dir = linalg.normalize(dir)
         supp = support(hull1, hull2, dir)
 
@@ -159,6 +159,8 @@ gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: 
 
         if next_simplex(&simplex, &dir) do return true, simplex
     }
+
+    return false, nil
 }
 
 
