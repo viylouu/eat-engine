@@ -34,7 +34,7 @@ gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
 }
 
 @private
-really_big : f32 : -340282346638528859811704183484516925440
+really_big : f32 : 340282346638528859811704183484516925440
 
 // credit to winterdev on the article for this
 // - https://winter.dev/articles/gjk-algorithm
