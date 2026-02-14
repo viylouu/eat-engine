@@ -27,9 +27,16 @@ aabb2d :: proc(a: Rectangle, b: Rectangle) -> bool {
            a_tl.pos.y + a_tl.size.y > b_tl.pos.y
 }
 
+gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
+    res, simp := gjk3d_simplex(hull1, hull2)
+    if res do delete(simp)
+    return res
+}
+
 // credit to winterdev on the article for this
 // - https://winter.dev/articles/gjk-algorithm
-gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
+// also, simplex must be deleted
+gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: [dynamic][3]f32) {
     furthest :: proc(hull: [][3]f32, dir: [3]f32) -> (max: [3]f32) {
         maxdist: f32 = -340282346638528859811704183484516925440 // source: trust me bro
         
@@ -137,8 +144,8 @@ gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
 
     supp := support(hull1, hull2, { 1,0,0 })
 
-    points: [dynamic][3]f32
-    append(&points, supp)
+    simplex = make([dynamic][3]f32)
+    append(&simplex, supp)
 
     dir := -supp
 
@@ -146,11 +153,11 @@ gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
         dir = linalg.normalize(dir)
         supp = support(hull1, hull2, dir)
 
-        if linalg.dot(supp, dir) <= 0 do return false
+        if linalg.dot(supp, dir) <= 0 do return false, nil
 
-        inject_at(&points, 0, supp)
+        inject_at(&simplex, 0, supp)
 
-        if next_simplex(&points, &dir) do return true
+        if next_simplex(&simplex, &dir) do return true, simplex
     }
 }
 
