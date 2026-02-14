@@ -33,12 +33,15 @@ gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
     return res
 }
 
+@private
+really_big : f32 : -340282346638528859811704183484516925440
+
 // credit to winterdev on the article for this
 // - https://winter.dev/articles/gjk-algorithm
 // also, simplex must be deleted
 gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: [dynamic][3]f32) {
     furthest :: proc(hull: [][3]f32, dir: [3]f32) -> (max: [3]f32) {
-        maxdist: f32 = -340282346638528859811704183484516925440 // source: trust me bro
+        maxdist: f32 = -really_big
         
         for vert in hull {
             dist := linalg.dot(vert, dir)
@@ -162,6 +165,160 @@ gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: 
 
     return false, nil
 }
+
+CollisionInfo :: struct{
+    norm: [3]f32,
+    depth: f32
+}
+
+@private
+Edge :: struct{ a,b: int }
+
+// credit to winterdev on the article for this
+// - https://winter.dev/articles/epa-algorithm
+epa3d :: proc(simplex: [dynamic][3]f32, hull1: [][3]f32, hull2: [][3]f32) -> CollisionInfo {
+    get_face_normals :: proc(polytope: [dynamic][3]f32, faces: [dynamic]int) -> ([dynamic][4]f32, int) {
+        norms := make([dynamic][4]f32)
+        mintri: int
+        mindist := really_big
+
+        for i := 0; i < len(faces); i += 3 {
+            a, b, c := polytope[faces[i+0]], 
+                       polytope[faces[i+1]], 
+                       polytope[faces[i+2]]
+
+            norm := linalg.normalize(linalg.cross(b - a, c - a))
+            dist := linalg.dot(norm, a)
+
+            if dist < 0 {
+                norm = -norm
+                dist = -dist
+            }
+
+            append(&norms, [4]f32{ norm.x, norm.y, norm.z, dist })
+
+            if dist < mindist {
+                mintri = i / 3
+                mindist = dist
+            }
+        }
+
+        return norms, mintri
+    }
+
+    furthest :: proc(hull: [][3]f32, dir: [3]f32) -> (max: [3]f32) {
+        maxdist: f32 = -340282346638528859811704183484516925440 // source: trust me bro
+        
+        for vert in hull {
+            dist := linalg.dot(vert, dir)
+            if dist > maxdist {
+                maxdist = dist
+                max = vert
+            }
+        }
+
+        return max
+    }
+
+    support :: proc(hull1: [][3]f32, hull2: [][3]f32, dir: [3]f32) -> [3]f32 {
+        return furthest(hull1, dir) - furthest(hull2, -dir)
+    }
+
+    same_dir :: proc(dir, ao: [3]f32) -> bool {
+        return linalg.dot(dir, ao) > 0
+    }
+
+    add_if_unique_edge :: proc(edges: ^[dynamic]Edge, faces: [dynamic]int, a,b: int) {
+        rev_ind := -1
+        for edge, i in edges do if edge.a == faces[b] && edge.b == faces[a] {
+            rev_ind = i
+            break
+        }
+
+        if rev_ind != -1 do ordered_remove(edges, rev_ind)
+        else do append(edges, Edge{ faces[a], faces[b] })
+    }
+
+    polytope := make([dynamic][3]f32, len(simplex))
+    copy(polytope[:], simplex[:])
+    defer delete(polytope)
+
+    faces := [dynamic]int{
+        0, 1, 2,
+        0, 3, 1,
+        0, 2, 3,
+        1, 3, 2,
+    }
+    defer delete(faces)
+
+    normals, minface := get_face_normals(polytope, faces)
+    defer delete(normals)
+
+    minnorm: [3]f32
+    mindist := really_big
+
+    for i := 0; mindist == really_big && i < 1024; i+= 1 {
+        minnorm = normals[minface].xyz
+        mindist = normals[minface].w
+
+        supp := support(hull1, hull2, minnorm)
+        sdist := linalg.dot(minnorm, supp)
+
+        if math.abs(sdist - mindist) > .001 {
+            mindist = really_big
+
+            unique := make([dynamic]Edge)
+            for i := 0; i < len(normals); i += 1 do if same_dir(normals[i].xyz, supp) {
+                f := i * 3
+                add_if_unique_edge(&unique, faces, f,   f+1)
+                add_if_unique_edge(&unique, faces, f+1, f+2)
+                add_if_unique_edge(&unique, faces, f+2, f)
+
+                faces[f+2] = faces[len(faces)-1]
+                pop(&faces)
+                faces[f+1] = faces[len(faces)-1]
+                pop(&faces)
+                faces[f] = faces[len(faces)-1]
+                pop(&faces)
+
+                normals[i] = normals[len(normals)-1]
+                pop(&normals)
+
+                i -= 1
+            }
+
+            new_faces := make([dynamic]int)
+            defer delete(new_faces)
+            for edge in unique {
+                append(&new_faces, edge.a)
+                append(&new_faces, edge.b)
+                append(&new_faces, len(polytope))
+            }
+
+            append(&polytope, supp)
+
+            new_normals, new_minface := get_face_normals(polytope, new_faces)
+            defer delete(new_normals)
+
+            old_mindist := really_big
+            for norm, i in normals do if norm.w < old_mindist {
+                old_mindist = norm.w
+                minface = i
+            }
+
+            if new_normals[new_minface].w < old_mindist do minface = new_minface + len(normals)
+
+            for face in new_faces do append(&faces, face)
+            for norm in new_normals do append(&normals, norm)
+        }
+    }
+
+    return CollisionInfo{
+        norm = minnorm,
+        depth = mindist
+    }
+}
+
 
 
 @private
