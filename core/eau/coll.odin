@@ -57,7 +57,7 @@ gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: 
 
     next_simplex :: proc(points: ^[dynamic][3]f32, dir: ^[3]f32) -> bool {
         same_dir :: proc(dir, ao: [3]f32) -> bool {
-            return linalg.dot(dir, ao) > 0
+            return linalg.dot(dir, ao) > .001
         }
 
         line :: proc(points: ^[dynamic][3]f32, dir: ^[3]f32) -> bool {
@@ -149,7 +149,7 @@ gjk3d_simplex :: proc(hull1: [][3]f32, hull2: [][3]f32) -> (res: bool, simplex: 
 
     dir := -supp
 
-    for i in 0..<64 {
+    for i in 0..<4 {
         dir = linalg.normalize(dir)
         supp = support(hull1, hull2, dir)
 
