@@ -104,6 +104,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
 
 load_texture :: proc(desc: TextureDesc, data: []u8, arena: ^eau.Arena = nil) -> ^Texture {
     width,height, chans: i32
+    image.set_flip_vertically_on_load(1)
     pixels := image.load_from_memory(raw_data(data), i32(len(data)), &width, &height, &chans, 4)
     assert(pixels != nil)
 

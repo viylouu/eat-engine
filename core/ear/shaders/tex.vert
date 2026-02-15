@@ -32,6 +32,7 @@ void main() {
     gl_Position = proj * vec4(vert * inst.size + inst.pos, 0,1);
 
     fUv = vert;
+    fUv.y = 1-fUv.y;
     fSample = inst.samp;
     fCol = inst.col;
 }
