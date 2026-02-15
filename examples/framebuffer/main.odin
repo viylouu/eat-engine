@@ -37,6 +37,6 @@ main :: proc() {
         ear.tex(tex, 0,0, 64,64, 1)
 
         ear.bind_framebuffer(nil)
-        ear.tex(fbtex, 0,0, f32(eaw.width), f32(eaw.height), 1)
+        ear.tex(fbtex, 0, f32(eaw.height), f32(eaw.width), -f32(eaw.height), 1)
     }
 }
