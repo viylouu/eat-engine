@@ -8,7 +8,7 @@ import "../eau"
 
 import gl "vendor:OpenGL"
 
-@private default_fb: ^^Framebuffer
+@private default_fb: ^Framebuffer
 
 Framebuffer :: struct{
     id: u32,
@@ -95,7 +95,7 @@ bind_framebuffer :: proc(fb: ^Framebuffer) {
         gl.Viewport(0,0, i32(w), i32(h))
         proj = glsl.mat4Ortho3d(0, f32(w), 0, f32(h), 0,1)
     } else {
-        if default_fb != nil do default_fb^->bind()
+        if default_fb != nil do default_fb->bind()
         else {
             gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
             gl.Viewport(0,0, i32(eaw.width), i32(eaw.height))
@@ -104,6 +104,6 @@ bind_framebuffer :: proc(fb: ^Framebuffer) {
     }
 }
 
-set_default_framebuffer :: proc(fb: ^^Framebuffer) {
+set_default_framebuffer :: proc(fb: ^Framebuffer) {
     default_fb = fb
 }
