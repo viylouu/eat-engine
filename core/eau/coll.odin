@@ -268,7 +268,7 @@ epa3d :: proc(simplex: [dynamic][3]f32, hull1: [][3]f32, hull2: [][3]f32) -> Col
             mindist = really_big
 
             unique := make([dynamic]Edge)
-            for i := 0; i < len(normals); i += 1 do if same_dir(normals[i].xyz, supp) {
+            for i := 0; i < len(normals); i += 1 do if linalg.dot(normals[i].xyz, supp) > linalg.dot(normals[i].xyz, polytope[faces[i*3]]) {
                 f := i * 3
                 add_if_unique_edge(&unique, faces, f,   f+1)
                 add_if_unique_edge(&unique, faces, f+1, f+2)
