@@ -94,7 +94,7 @@ tex_rgba_wh_samp :: proc(tex: ^Texture, x, y: f32, w, h: f32, sx,sy,sw,sh: f32, 
 
     tex_rend.cur_tex = tex
 
-    tex_rend.ssbo_d[tex_rend.ssbo_i] = { pos = {x,y}, size = {w,h}, col = col, samp = { sx/f32(tex.width), sy/f32(tex.height), sw/f32(tex.width), sh/f32(tex.height) } }
+    tex_rend.ssbo_d[tex_rend.ssbo_i] = { pos = {x,y}, size = {w,h}, col = col, samp = { sx/f32(tex.width), 1-(sy+sh)/f32(tex.height), sw/f32(tex.width), sh/f32(tex.height) } }
     tex_rend.ssbo_i += 1
 }
 

@@ -5,6 +5,8 @@ import "core:fmt"
 import "core/eaw"
 import "core/ear"
 
+import "editor"
+
 init :: proc(
     width, height: i32,
     title: cstring,
@@ -26,8 +28,12 @@ stop :: proc() {
 frame :: proc() -> bool {
     if !eaw.is_open() do return false
 
+    if editor.used do editor.after()
+
     ear.frame()
     eaw.frame()
+
+    if editor.used do editor.before()
 
     return true
 }
