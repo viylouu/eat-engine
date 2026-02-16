@@ -7,16 +7,24 @@ import "core/ear"
 
 import "editor"
 
+// use this instead of the eaw fields
+// - unless you want the window's width
+// this will get changed by the editor for draw area width/height
+width, height: u32
+
 init :: proc(
-    width, height: i32,
+    _width, _height: i32,
     title: cstring,
 
     other: struct{
         vsync: Maybe(bool)
     }
 ) {
-    eaw.init(width,height, title, other.vsync.? or_else true)
+    eaw.init(_width,_height, title, other.vsync.? or_else true)
     ear.init()
+    
+    width  = u32(_width)
+    height = u32(_height)
 }
 
 stop :: proc() {
@@ -33,7 +41,12 @@ frame :: proc() -> bool {
     ear.frame()
     eaw.frame()
 
-    if editor.used do editor.before()
+    if editor.used {
+        editor.before()
+
+        width = 1600
+        height = 900
+    }
 
     return true
 }
