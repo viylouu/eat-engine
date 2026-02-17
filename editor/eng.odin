@@ -259,6 +259,26 @@ after :: proc() {
                
                 ear.tex(tex, 118./640.*f32(eaw.width), offy/360.*f32(eaw.height), 124/640.*f32(eaw.width),height/360.*f32(eaw.height), 1)
             case .Pipeline:
+                pln := (^ear.Pipeline)(obj.data)
+
+                ear.text(font, pln.desc.depth? "depth:enabled" : "depth:disabled", 118,offy, 1)
+
+                offy += charh
+
+                switch pln.desc.cull_mode {
+                case .None: ear.text(font, "culling:none", 118, offy, 1)
+                case .Front: ear.text(font, "culling:front", 118, offy, 1)
+                case .Back: ear.text(font, "culling:back", 118, offy, 1)
+                }
+
+                offy += charh
+
+                switch pln.desc.front {
+                case .CW: ear.text(font, "front:cw", 118, offy, 1)
+                case .CCW: ear.text(font, "front:ccw", 118, offy, 1)
+                }
+
+                redraw_thing()
             case .TexArray:
             case .Framebuffer:
                 fb := (^ear.Framebuffer)(obj.data)
