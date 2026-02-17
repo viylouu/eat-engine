@@ -6,6 +6,7 @@ import "core/eaw"
 import "core/ear"
 
 import "editor"
+import "editor/_hook"
 
 // use this instead of the eaw fields
 // - unless you want the window's width
@@ -20,6 +21,8 @@ init :: proc(
         vsync: Maybe(bool)
     }
 ) {
+    _hook.init()
+
     eaw.init(_width,_height, title, other.vsync.? or_else true)
     ear.init()
     
@@ -30,6 +33,8 @@ init :: proc(
 stop :: proc() {
     ear.stop()
     eaw.stop()
+
+    _hook.stop()
 }
 
 

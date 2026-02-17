@@ -1,5 +1,7 @@
 package editor
 
+import "core:strings"
+
 import "../core/eaw"
 import "../core/eau"
 import "../core/ear"
@@ -24,8 +26,6 @@ flipped: bool
 
 hook :: proc() {
     used = true
-    _hook.init()
-    _hook.hooked = true
 
     arena = eau.create_arena()
 
@@ -51,8 +51,6 @@ hook :: proc() {
 unhook :: proc() {
     arena->delete()
 
-    _hook.hooked = false
-    _hook.stop()
     used = false
 }
 
@@ -73,7 +71,46 @@ after :: proc() {
         ear.bind_framebuffer(edit_fb)
         ear.clear([4]f32{ 0,0,0,0 })
 
-        ear.rect(0,0, 64,360, [4]f32{ 0,0,0,1 })
+        /* objects */ {
+            ear.rect(0,0, 64,360, [4]f32{ 0,0,0,1 })
+        }
+
+        /* buffers and stuff */ {
+            ear.rect(64,360-64, 640-64,64, .1)
+            ear.rect(65,361-64, 638-64,62, 0)
+
+            x,y: int
+            for obj,i in _hook.objects {
+                if obj.data == nil do continue
+
+                name := strings.builder_make()
+                defer strings.builder_destroy(&name)
+
+                switch obj.type {
+                case .Arena: strings.write_string(&name, "arena ")
+                case .Buffer: strings.write_string(&name, "buffer ")
+                case .Texture: strings.write_string(&name, "texture ")
+                case .Pipeline: strings.write_string(&name, "pipeline ")
+                case .TexArray: strings.write_string(&name, "texarray ")
+                case .Framebuffer: strings.write_string(&name, "framebuffer ")
+                }
+                strings.write_int(&name, i)
+
+                sname := strings.to_string(name)
+
+                text_width := (len(sname)) * int(font.width)/16
+                x += text_width + 2
+                if x+65 >= 640 {
+                    x = text_width+2
+                    y += int(font.height)/16 + 2
+                }
+
+                ear.rect(f32(x)+67 - f32(text_width)-3, f32(y)+363-65, f32(text_width)+1, f32(font.height)/16+1, .2)
+                ear.rect(f32(x)+67 - f32(text_width)-2, f32(y)+363-64, f32(text_width)-1, f32(font.height)/16-1, .1)
+
+                ear.text(font, sname, f32(x)+67 - f32(text_width)-2,f32(y)+363-64, 1,1)
+            }
+        }
 
         ear.text(font, "editor", 1,1, 1)
 

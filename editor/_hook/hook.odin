@@ -5,8 +5,6 @@ package _hook
 // you *may* use this however IF you need to add custom objects, and youre editing the editor and whatever
 // but otherwise, this is not designed for users
 
-hooked: bool
-
 // this would be a union, however, i need the things to be able to import this, and not the other way around
 objects: [dynamic]Object
 Object :: struct{
@@ -24,10 +22,8 @@ Type :: enum {
 }
 
 add_object :: proc(obj: Object) -> int {
-    if hooked {
-        append(&objects, obj)
-        return len(objects)-1
-    } else do return -1
+    append(&objects, obj)
+    return len(objects)-1
 }
 
 remove_object :: proc(idx: int) {
