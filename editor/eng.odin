@@ -4,6 +4,8 @@ import "../core/eaw"
 import "../core/eau"
 import "../core/ear"
 
+import "_hook"
+
 // read by eat
 used: bool
 
@@ -22,6 +24,8 @@ flipped: bool
 
 hook :: proc() {
     used = true
+    _hook.init()
+    _hook.hooked = true
 
     arena = eau.create_arena()
 
@@ -47,6 +51,8 @@ hook :: proc() {
 unhook :: proc() {
     arena->delete()
 
+    _hook.hooked = false
+    _hook.stop()
     used = false
 }
 
@@ -67,7 +73,7 @@ after :: proc() {
         ear.bind_framebuffer(edit_fb)
         ear.clear([4]f32{ 0,0,0,0 })
 
-        ear.rect(0,0, 64,64, [4]f32{ 0,0,0,1 })
+        ear.rect(0,0, 64,360, [4]f32{ 0,0,0,1 })
 
         ear.text(font, "editor", 1,1, 1)
 

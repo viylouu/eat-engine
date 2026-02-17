@@ -1,6 +1,7 @@
 package ear
 
 import "../eau"
+import "../../editor/_hook"
 
 import gl "vendor:OpenGL"
 
@@ -13,6 +14,7 @@ TexArray :: struct{
 
     desc: TexArrayDesc,
     dest: ^eau.Destructor,
+    idx: int,
     
     delete: proc(texarray: ^TexArray),
     bind: proc(texarray: ^TexArray, slot: u32), // this sets the uniform aswell!
@@ -77,6 +79,7 @@ create_tex_array :: proc(desc: TexArrayDesc, arena: ^eau.Arena = nil) -> ^TexArr
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, 0)
 
     if arena != nil do texarray.dest = arena->add(texarray, proc(p: rawptr){ delete_tex_array((^TexArray)(p)) })
+    texarray.idx = _hook.add_object({ type = .TexArray, data = texarray })
     return texarray
 }
 
@@ -85,6 +88,7 @@ delete_tex_array :: proc(texarray: ^TexArray) {
     delete(texarray.texs)
 
     if texarray.dest != nil do texarray.dest.data = nil
+    _hook.remove_object(texarray.idx)
     free(texarray)
 }
 

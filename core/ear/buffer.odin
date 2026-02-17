@@ -3,6 +3,7 @@ package ear
 import "core:fmt"
 
 import "../eau"
+import "../../editor/_hook"
 
 import gl "vendor:OpenGL"
 
@@ -15,6 +16,7 @@ Buffer :: struct{
 
     desc: BufferDesc,
     dest: ^eau.Destructor,
+    idx: int,
 
     delete: proc(buffer: ^Buffer),
     bind: proc(buffer: ^Buffer, slot: u32),
@@ -67,6 +69,7 @@ create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32, arena: ^eau.Arena
     gl.BindBuffer(targ, 0)
 
     if arena != nil do buf.dest = arena->add(buf, proc(p: rawptr){ delete_buffer((^Buffer)(p)) })
+    buf.idx = _hook.add_object({ type = .Buffer, data = buf })
     return buf
 }
 
@@ -74,6 +77,7 @@ delete_buffer :: proc(buffer: ^Buffer) {
     gl.DeleteBuffers(1, raw_data( []u32{ buffer.id } ))
 
     if buffer.dest != nil do buffer.dest.data = nil
+    _hook.remove_object(buffer.idx)
     free(buffer)
 }
 

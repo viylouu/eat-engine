@@ -5,6 +5,7 @@ import "core:math/linalg/glsl"
 
 import "../eaw"
 import "../eau"
+import "../../editor/_hook"
 
 import gl "vendor:OpenGL"
 
@@ -15,6 +16,7 @@ Framebuffer :: struct{
 
     desc: FramebufferDesc,
     dest: ^eau.Destructor,
+    idx: int,
 
     delete: proc(fb: ^Framebuffer),
     bind: proc(fb: ^Framebuffer),
@@ -74,6 +76,7 @@ create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^F
     gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)
 
     if arena != nil do fb.dest = arena->add(fb, proc(p: rawptr){ delete_framebuffer((^Framebuffer)(p)) })
+    fb.idx = _hook.add_object({ type = .Framebuffer, data = fb })
     return fb
 }
 
@@ -81,6 +84,7 @@ delete_framebuffer :: proc(fb: ^Framebuffer) {
     gl.DeleteFramebuffers(1, raw_data([]u32 { fb.id }))
 
     if fb.dest != nil do fb.dest.data = nil
+    _hook.remove_object(fb.idx)
     free(fb)
 }
 

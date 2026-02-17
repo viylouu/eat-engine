@@ -3,6 +3,7 @@ package ear
 import "core:fmt"
 
 import "../eau"
+import "../../editor/_hook"
 
 import gl "vendor:OpenGL"
 
@@ -12,6 +13,7 @@ Pipeline :: struct{
 
     desc: PipelineDesc,
     dest: ^eau.Destructor,
+    idx: int,
 
     delete: proc(pln: ^Pipeline),
     bind: proc(pln: ^Pipeline),
@@ -181,6 +183,7 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
     gl.BindVertexArray(0)
 
     if arena != nil do pln.dest = arena->add(pln, proc(p: rawptr){ delete_pipeline((^Pipeline)(p)) })
+    pln.idx = _hook.add_object({ type = .Pipeline, data = pln })
     return pln
 }
 
@@ -188,6 +191,7 @@ delete_pipeline :: proc(pln: ^Pipeline) {
     gl.DeleteProgram(pln.id)
 
     if pln.dest != nil do pln.dest.data = nil
+    _hook.remove_object(pln.idx)
     free(pln)
 }
 

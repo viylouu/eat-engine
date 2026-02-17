@@ -3,6 +3,7 @@ package ear
 import "core:fmt"
 
 import "../eau"
+import "../../editor/_hook"
 
 import gl "vendor:OpenGL"
 import "vendor:stb/image"
@@ -18,6 +19,7 @@ Texture :: struct{
 
     desc: TextureDesc,
     dest: ^eau.Destructor,
+    idx: int,
 
     delete: proc(tex: ^Texture),
     bind: proc(tex: ^Texture, slot: u32), // this sets the uniform aswell!
@@ -99,6 +101,7 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
     gl.BindTexture(gl.TEXTURE_2D, 0)
 
     if arena != nil do tex.dest = arena->add(tex, proc(p: rawptr){ delete_texture((^Texture)(p)) })
+    tex.idx = _hook.add_object({ type = .Texture, data = tex })
     return tex
 }
 
@@ -118,6 +121,7 @@ delete_texture :: proc(tex: ^Texture) {
     if tex.stbi_pixels do image.image_free(tex.pixels)
 
     if tex.dest != nil do tex.dest.data = nil
+    _hook.remove_object(tex.idx)
     free(tex)
 }
 

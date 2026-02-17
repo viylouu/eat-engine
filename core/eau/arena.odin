@@ -1,7 +1,11 @@
 package eau
 
+import "../../editor/_hook"
+
 Arena :: struct{
     dests: [dynamic]^Destructor,
+    
+    idx: int,
 
     delete: proc(arena: ^Arena),
     add: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^Destructor,
@@ -21,6 +25,7 @@ create_arena :: proc() -> ^Arena {
         add = add_to_arena,
     })
 
+    arena.idx = _hook.add_object({ type = .Arena, data = arena })
     return arena
 }
 
@@ -31,6 +36,7 @@ delete_arena :: proc(arena: ^Arena) {
     }
     delete(arena.dests)
 
+    _hook.remove_object(arena.idx)
     free(arena)
 }
 
