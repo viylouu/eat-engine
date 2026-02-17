@@ -197,6 +197,41 @@ after :: proc() {
 
                 redraw_thing()
             case .Buffer:
+                buf := (^ear.Buffer)(obj.data)
+
+                type: string
+                switch buf.desc.type {
+                case .Vertex: type = "type:vertex"
+                case .Uniform: type = "type:uniform"
+                case .Storage: type = "type:storage"
+                case .Index: type = "type:index"
+                }
+                ear.text(font, type, 118, offy, 1)
+
+                offy += charh
+
+                switch buf.desc.usage {
+                case .Dynamic: ear.text(font, "usage:dynamic", 118, offy, 1)
+                case .Static: ear.text(font, "usage:static", 118, offy, 1)
+                }
+
+                offy += charh
+
+                strings.builder_reset(&name)
+                strings.write_string(&name, "elements:")
+                strings.write_u64(&name, u64(buf.size/buf.desc.stride))
+
+                ear.text(font, strings.to_string(name), 118, offy, 1)
+
+                offy += charh
+
+                strings.builder_reset(&name)
+                strings.write_string(&name, "stride:")
+                strings.write_u64(&name, u64(buf.desc.stride))
+
+                ear.text(font, strings.to_string(name), 118, offy, 1)
+
+                redraw_thing()
             case .Texture:
                 tex := (^ear.Texture)(obj.data)
 
@@ -216,7 +251,7 @@ after :: proc() {
 
                 offy += charh
 
-                height := 126-offy
+                height := 127-offy
                 ear.rect(118, offy, 124,height, 0)
 
                 redraw_thing()
