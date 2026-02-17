@@ -13,6 +13,7 @@ Object :: struct{
 }
 
 Type :: enum {
+    None,
     Buffer,
     Framebuffer,
     Pipeline,
@@ -29,6 +30,7 @@ add_object :: proc(obj: Object) -> int {
 remove_object :: proc(idx: int) {
     if idx < 0 do return
     objects[idx].data = nil
+    objects[idx].type = .None
 }
 
 

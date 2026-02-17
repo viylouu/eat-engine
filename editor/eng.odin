@@ -107,6 +107,7 @@ after :: proc() {
                 case .Pipeline: strings.write_string(name, "pipeline ")
                 case .TexArray: strings.write_string(name, "texarray ")
                 case .Framebuffer: strings.write_string(name, "framebuffer ")
+                case .None: strings.write_string(name, "#&(åæ@@")
                 }
                 strings.write_int(name, i)
 
@@ -175,6 +176,7 @@ after :: proc() {
             case .Pipeline: strings.write_string(&name, "pipeline ")
             case .TexArray: strings.write_string(&name, "texarray ")
             case .Framebuffer: strings.write_string(&name, "framebuffer ")
+            case .None: strings.write_string(&name, "#&(åæ@@")
             }
             strings.write_int(&name, selected)
 
@@ -189,6 +191,8 @@ after :: proc() {
             redraw_thing()
 
             switch obj.type {
+            case .None:
+                ear.text(font, "...what? this object is removed. how are you seeing this?", 118, offy, 1)
             case .Arena:
                 arena := (^eau.Arena)(obj.data)
 
