@@ -31,7 +31,7 @@ hook :: proc() {
 
     arena = eau.create_arena()
 
-    game_col = ear.create_texture({ type = .Color }, nil, 1600,900, arena)
+    game_col = ear.create_texture({ type = .Hdr }, nil, 1600,900, arena)
     game_depth = ear.create_texture({ type = .Depth }, nil, 1600,900, arena)
     game_fb = ear.create_framebuffer({
             out_colors = { game_col },
@@ -253,6 +253,8 @@ after :: proc() {
                 switch tex.desc.type {
                 case .Color: ear.text(font, "type:color", 118, offy, 1)
                 case .Depth: ear.text(font, "type:depth", 118, offy, 1)
+                case .Hdr: ear.text(font, "type:hdr", 118, offy, 1)
+                case .Hdr32: ear.text(font, "type:hdr32", 118, offy, 1)
                 }
 
                 offy += charh

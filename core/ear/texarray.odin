@@ -25,7 +25,7 @@ TexArray :: struct{
 
 TexArrayDesc :: struct{
     filter: TextureFilter,
-    //type: TextureType, // assumed color
+    type: TextureType,
     wrap: TextureWrap,
         wrap_color: [4]f32,
 
@@ -66,13 +66,13 @@ create_tex_array :: proc(desc: TexArrayDesc, arena: ^eau.Arena = nil) -> ^TexArr
     gl.TexImage3D(
         gl.TEXTURE_2D_ARRAY,
         0,
-        gl.RGBA8,
+        TYPECONV_texture_type_as_intf(desc.type),
         i32(desc.width),
         i32(desc.height),
         i32(desc.layers),
         0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
+        TYPECONV_texture_type_as_f(desc.type),
+        TYPECONV_texture_type_as_type(desc.type),
         nil,
         )
 
@@ -100,6 +100,8 @@ bind_tex_array :: proc(texarray: ^TexArray, slot: u32) {
 }
 
 add_to_tex_array :: proc(texarray: ^TexArray, tex: ^Texture, #any_int layer: u32) {
+    assert(texarray.desc.type == tex.desc.type)
+
     texarray.texs[layer] = tex
 
     gl.BindTexture(gl.TEXTURE_2D_ARRAY, texarray.id)
@@ -112,8 +114,8 @@ add_to_tex_array :: proc(texarray: ^TexArray, tex: ^Texture, #any_int layer: u32
         i32(texarray.desc.width),
         i32(texarray.desc.height),
         1,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
+        TYPECONV_texture_type_as_f(texarray.desc.type),
+        TYPECONV_texture_type_as_type(texarray.desc.type),
         tex.pixels,
         )
 
@@ -138,8 +140,8 @@ update_tex_array_layer :: proc(texarray: ^TexArray, #any_int layer: u32) {
         i32(texarray.desc.width),
         i32(texarray.desc.height),
         1,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
+        TYPECONV_texture_type_as_f(texarray.desc.type),
+        TYPECONV_texture_type_as_type(texarray.desc.type),
         texarray.texs[layer].pixels,
         )
 

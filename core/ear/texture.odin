@@ -44,6 +44,8 @@ TextureFilter :: enum{
 TextureType :: enum{
     Color,
     Depth,
+    Hdr,
+    Hdr32,
 }
 
 TextureWrap :: enum{
@@ -90,11 +92,11 @@ create_texture :: proc(desc: TextureDesc, pixels: [^]u8, width, height: u32, are
     gl.TexImage2D(
         gl.TEXTURE_2D,
         0,
-        desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT24,
+        TYPECONV_texture_type_as_intf(desc.type),
         i32(width), i32(height),
         0,
-        desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT,
-        gl.UNSIGNED_BYTE,
+        TYPECONV_texture_type_as_f(desc.type),
+        TYPECONV_texture_type_as_type(desc.type),
         pixels
         )
 
@@ -158,8 +160,8 @@ apply_texture_changes :: proc(tex: ^Texture) {
         0,
         0,0,
         i32(tex.width), i32(tex.height),
-        tex.desc.type == .Color? gl.RGBA : gl.DEPTH_COMPONENT,
-        gl.UNSIGNED_BYTE,
+        TYPECONV_texture_type_as_f(tex.desc.type),
+        TYPECONV_texture_type_as_type(tex.desc.type),
         tex.pixels
         )
 
@@ -185,6 +187,45 @@ TYPECONV_texture_wrap :: proc(wrap: TextureWrap) -> i32 {
     case .Repeat: return gl.REPEAT
     case .Clamp:  return gl.CLAMP_TO_EDGE
     case .Color:  return gl.CLAMP_TO_BORDER
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_texture_type_as_intf :: proc(type: TextureType) -> i32 {
+    switch type {
+    case .Color: return gl.RGBA8
+    case .Depth: return gl.DEPTH_COMPONENT24
+    case .Hdr: return gl.RGBA16F
+    case .Hdr32: return gl.RGBA32F
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_texture_type_as_f :: proc(type: TextureType) -> u32 {
+    switch type {
+    case .Color: return gl.RGBA
+    case .Depth: return gl.DEPTH_COMPONENT
+    case .Hdr: return gl.RGBA
+    case .Hdr32: return gl.RGBA
+    }
+
+    assert(false)
+    return 0
+}
+
+@private
+TYPECONV_texture_type_as_type :: proc(type: TextureType) -> u32 {
+    switch type {
+    case .Color: return gl.UNSIGNED_BYTE
+    case .Depth: return gl.UNSIGNED_INT
+    case .Hdr: return gl.HALF_FLOAT
+    case .Hdr32: return gl.FLOAT
     }
 
     assert(false)
