@@ -72,7 +72,8 @@ after :: proc() {
         ear.clear([4]f32{ 0,0,0,0 })
 
         /* objects */ {
-            ear.rect(0,0, 114,360, [4]f32{ 0,0,0,1 })
+            ear.rect(0,0, 114,360, .1)
+            ear.rect(1,1, 112,358, 0)
         }
 
         /* buffers and stuff */ {
@@ -112,7 +113,7 @@ after :: proc() {
             }
         }
 
-        ear.text(font, "editor", 1,1, 1)
+        ear.text(font, "editor", 2,2, 1)
 
         ear.bind_framebuffer(nil)
         ear.tex(edit_col, 0,f32(eaw.height), f32(eaw.width), -f32(eaw.height), 1)
