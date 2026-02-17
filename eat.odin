@@ -51,6 +51,9 @@ frame :: proc() -> bool {
 
         width = 1600
         height = 900
+    } else {
+        width = u32(eaw.width)
+        height = u32(eaw.height)
     }
 
     return true
