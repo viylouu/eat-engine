@@ -72,12 +72,12 @@ after :: proc() {
         ear.clear([4]f32{ 0,0,0,0 })
 
         /* objects */ {
-            ear.rect(0,0, 64,360, [4]f32{ 0,0,0,1 })
+            ear.rect(0,0, 114,360, [4]f32{ 0,0,0,1 })
         }
 
         /* buffers and stuff */ {
-            ear.rect(64,360-64, 640-64,64, .1)
-            ear.rect(65,361-64, 638-64,62, 0)
+            ear.rect(114,360-64, 640-64,64, .1)
+            ear.rect(115,361-64, 638-64,62, 0)
 
             x,y: int
             for obj,i in _hook.objects {
@@ -100,15 +100,15 @@ after :: proc() {
 
                 text_width := (len(sname)) * int(font.width)/16
                 x += text_width + 2
-                if x+65 >= 640 {
+                if x+115 >= 640 {
                     x = text_width+2
                     y += int(font.height)/16 + 2
                 }
 
-                ear.rect(f32(x)+67 - f32(text_width)-3, f32(y)+363-65, f32(text_width)+1, f32(font.height)/16+1, .2)
-                ear.rect(f32(x)+67 - f32(text_width)-2, f32(y)+363-64, f32(text_width)-1, f32(font.height)/16-1, .1)
+                ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-65, f32(text_width)+1, f32(font.height)/16+1, .2)
+                ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-64, f32(text_width)-1, f32(font.height)/16-1, .1)
 
-                ear.text(font, sname, f32(x)+67 - f32(text_width)-2,f32(y)+363-64, 1,1)
+                ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-64, 1,1)
             }
         }
 
@@ -117,7 +117,7 @@ after :: proc() {
         ear.bind_framebuffer(nil)
         ear.tex(edit_col, 0,f32(eaw.height), f32(eaw.width), -f32(eaw.height), 1)
 
-        offx, heightsuby: f32 = 64/640.*f32(eaw.width), 64/360.*f32(eaw.height)
+        offx, heightsuby: f32 = 114/640.*f32(eaw.width), 64/360.*f32(eaw.height)
 
         if flipped do ear.tex(game_col, offx,f32(eaw.height)-heightsuby, f32(eaw.width)-64,-f32(eaw.height)+heightsuby, 1)
         else do ear.tex(game_col, offx,0, f32(eaw.width), f32(eaw.height)-heightsuby, 1)
