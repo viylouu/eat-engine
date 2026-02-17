@@ -24,6 +24,8 @@ font: ^ear.Texture
 enabled: bool
 flipped: bool
 
+selected: int = -1
+
 hook :: proc() {
     used = true
 
@@ -118,7 +120,7 @@ after :: proc() {
         ear.bind_framebuffer(nil)
         ear.tex(edit_col, 0,f32(eaw.height), f32(eaw.width), -f32(eaw.height), 1)
 
-        offx, heightsuby: f32 = 114/640.*f32(eaw.width), 64/360.*f32(eaw.height)
+        offx, heightsuby: f32 = 114./640.*f32(eaw.width), 64./360.*f32(eaw.height)
 
         if flipped do ear.tex(game_col, offx,f32(eaw.height)-heightsuby, f32(eaw.width)-64,-f32(eaw.height)+heightsuby, 1)
         else do ear.tex(game_col, offx,0, f32(eaw.width), f32(eaw.height)-heightsuby, 1)
