@@ -38,11 +38,14 @@ create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^F
         bind = bind_framebuffer,
     })
 
+    fb.desc.out_colors = make([]^Texture, len(desc.out_colors))
+
     gl.GenFramebuffers(1, &fb.id)
     gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)
 
     dbufs := make([dynamic]u32)
-    for col, i in desc.out_colors {
+    for &col, i in fb.desc.out_colors {
+        col = desc.out_colors[i]
         gl.FramebufferTexture2D(
             gl.FRAMEBUFFER,
             u32(gl.COLOR_ATTACHMENT0 + i),
@@ -82,6 +85,7 @@ create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^F
 
 delete_framebuffer :: proc(fb: ^Framebuffer) {
     gl.DeleteFramebuffers(1, raw_data([]u32 { fb.id }))
+    delete(fb.desc.out_colors)
 
     if fb.dest != nil do fb.dest.data = nil
     _hook.remove_object(fb.idx)

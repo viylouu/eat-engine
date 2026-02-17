@@ -27,6 +27,14 @@ aabb2d :: proc(a: Rectangle, b: Rectangle) -> bool {
            a_tl.pos.y + a_tl.size.y > b_tl.pos.y
 }
 
+pointrect :: proc(p: [2]f32, r: Rectangle) -> bool {
+    a := CONV_rect_topleftify(r)
+    return p.x < a.pos.x + a.size.x &&
+           p.x > a.pos.x &&
+           p.y < a.pos.y + a.size.y &&
+           p.y > a.pos.y
+}
+
 gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
     res, simp := gjk3d_simplex(hull1, hull2)
     if res do delete(simp)
