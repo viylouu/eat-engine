@@ -68,7 +68,7 @@ after :: proc() {
     else do ear.tex(game_col, 0,0, f32(eaw.width), f32(eaw.height), 1)
 
     if enabled {
-        offx, heightsuby: f32 = 114./640.*f32(eaw.width), 64./360.*f32(eaw.height)
+        offx, heightsuby: f32 = 114./640.*f32(eaw.width), 94./360.*f32(eaw.height)
         if flipped do ear.tex(game_col, offx,f32(eaw.height)-heightsuby, f32(eaw.width)-64,-f32(eaw.height)+heightsuby, 1)
         else do ear.tex(game_col, offx,0, f32(eaw.width), f32(eaw.height)-heightsuby, 1)
 
@@ -289,7 +289,7 @@ after :: proc() {
                 offy += charh
 
                 if blend, ok := pln.desc.blend.?; ok {
-                                       blendfac_add :: proc(builder: ^strings.Builder, fac: ear.BlendFactor) {
+                    blendfac_add :: proc(builder: ^strings.Builder, fac: ear.BlendFactor) {
                         switch fac {
                         case .Zero: strings.write_string(builder, "zero")
                         case .One: strings.write_string(builder, "one")
@@ -325,17 +325,6 @@ after :: proc() {
                         ear.text(font, strings.to_string(builder^), 118, offy^, 1)
                         offy^ += charh
                     }
-                
-     /*
-                       BlendState :: struct{
-    src_color, dst_color: BlendFactor,
-    color_op: BlendOp,
-    src_alpha, dst_alpha: BlendFactor,
-    alpha_op: BlendOp,
-}
-
-                       */
-
 
                     ear.text(font, "blend state:", 118, offy, 1)
                     offy += charh
