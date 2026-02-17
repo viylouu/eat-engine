@@ -95,6 +95,8 @@ after :: proc() {
             defer delete(builders)
 
             for obj,i in _hook.objects {
+                if obj.data == nil do continue
+
                 name := &builders[i]
                 name^ = strings.builder_make()
 
