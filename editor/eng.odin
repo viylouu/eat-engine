@@ -85,8 +85,8 @@ after :: proc() {
         }
 
         /* buffers and stuff */ {
-            ear.rect(114,360-64, 640-64,64, .2)
-            ear.rect(115,361-64, 638-64,62, .1)
+            ear.rect(114,360-94, 640-64,94, .2)
+            ear.rect(115,361-94, 638-64,92, .1)
 
             changed_sel: bool
 
@@ -116,10 +116,10 @@ after :: proc() {
                     y += int(font.height)/16 + 2
                 }
 
-                sel := eau.pointrect({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-65 }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
+                sel := eau.pointrect({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-95 }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
 
-                ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-65, f32(text_width)+1, f32(font.height)/16+1, sel || selected == i? .4 : .3)
-                ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-64, f32(text_width)-1, f32(font.height)/16-1, sel || selected == i? .3 : .2)
+                ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-95, f32(text_width)+1, f32(font.height)/16+1, sel || selected == i? .4 : .3)
+                ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-94, f32(text_width)-1, f32(font.height)/16-1, sel || selected == i? .3 : .2)
 
                 if sel && eaw.is_mouse_pressed(.Left) {
                     selected = i
@@ -141,7 +141,7 @@ after :: proc() {
                     y += int(font.height)/16 + 2
                 }
 
-                ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-64, 1,1)
+                ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-94, 1,1)
 
                 strings.builder_destroy(name)
             }
@@ -273,10 +273,82 @@ after :: proc() {
 
                 offy += charh
 
-                switch pln.desc.front {
-                case .CW: ear.text(font, "front:cw", 118, offy, 1)
-                case .CCW: ear.text(font, "front:ccw", 118, offy, 1)
+                if pln.desc.cull_mode != .None {
+                    switch pln.desc.front {
+                    case .CW: ear.text(font, "front:cw", 118, offy, 1)
+                    case .CCW: ear.text(font, "front:ccw", 118, offy, 1)
+                    }
+                    offy += charh
                 }
+
+                switch pln.desc.fill_mode {
+                case .Fill: ear.text(font, "fill:fill", 118, offy, 1)
+                case .Line: ear.text(font, "fill:line", 118, offy, 1)
+                }
+
+                offy += charh
+
+                if blend, ok := pln.desc.blend.?; ok {
+                                       blendfac_add :: proc(builder: ^strings.Builder, fac: ear.BlendFactor) {
+                        switch fac {
+                        case .Zero: strings.write_string(builder, "zero")
+                        case .One: strings.write_string(builder, "one")
+                        case .SrcColor: strings.write_string(builder, "src-color")
+                        case .InvSrcColor: strings.write_string(builder, "inv-src-color")
+                        case .DstColor: strings.write_string(builder, "dst-color")
+                        case .InvDstColor: strings.write_string(builder, "inv-dst-color")
+                        case .SrcAlpha: strings.write_string(builder, "src-alpha")
+                        case .InvSrcAlpha: strings.write_string(builder, "inv-src-alpha")
+                        case .DstAlpha: strings.write_string(builder, "dst-alpha")
+                        case .InvDstAlpha: strings.write_string(builder, "inv-dst-alpha")
+                        }
+                    }
+
+                    blendop_add :: proc(builder: ^strings.Builder, op: ear.BlendOp) {
+                        switch op {
+                        case .Add: strings.write_string(builder, "add")
+                        case .Subtract: strings.write_string(builder, "subtract")
+                        case .RevSubtract: strings.write_string(builder, "rev-subtract")
+                        case .Min: strings.write_string(builder, "min")
+                        case .Max: strings.write_string(builder, "max")
+                        }
+                    }
+
+                    add_thing :: proc(builder: ^strings.Builder, name: string, offy: ^f32, charh: f32, thing: union{ ear.BlendFactor, ear.BlendOp }) {
+                        strings.builder_reset(builder)
+                        strings.write_string(builder, name)
+                        switch t in thing {
+                        case ear.BlendFactor: blendfac_add(builder, t)
+                        case ear.BlendOp: blendop_add(builder, t)
+                        }
+
+                        ear.text(font, strings.to_string(builder^), 118, offy^, 1)
+                        offy^ += charh
+                    }
+                
+     /*
+                       BlendState :: struct{
+    src_color, dst_color: BlendFactor,
+    color_op: BlendOp,
+    src_alpha, dst_alpha: BlendFactor,
+    alpha_op: BlendOp,
+}
+
+                       */
+
+
+                    ear.text(font, "blend state:", 118, offy, 1)
+                    offy += charh
+
+                    add_thing(&name, "- src-color:", &offy, charh, blend.src_color)
+                    add_thing(&name, "- dst-color:", &offy, charh, blend.dst_color)
+                    add_thing(&name, "- color-op:", &offy, charh, blend.color_op)
+                    add_thing(&name, "- src-alpha:", &offy, charh, blend.src_alpha)
+                    add_thing(&name, "- dst-alpha:", &offy, charh, blend.dst_alpha)
+                    add_thing(&name, "- alpha-op:", &offy, charh, blend.alpha_op)
+                } else do ear.text(font, "blending disabled", 118, offy, 1)
+
+                offy += charh
 
                 redraw_thing()
             case .TexArray:
