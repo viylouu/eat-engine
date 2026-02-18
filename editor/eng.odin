@@ -2,6 +2,8 @@ package editor
 
 import "core:fmt"
 import "core:strings"
+import "core:strconv"
+import "core:os"
 
 import "../core/eaw"
 import "../core/eau"
@@ -26,10 +28,31 @@ flipped: bool
 
 selected: int = -1
 
+colors: [16][3]f32
+
 hook :: proc() {
     used = true
 
     arena = eau.create_arena()
+
+    colors = {
+        { 0,0,0 },
+        { .1,.1,.1 },
+        { .2,.2,.2 },
+        { .3,.3,.3 },
+        { .4,.4,.4 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 0,0,0 },
+        { 1,1,1 },
+    }
 
     game_col = ear.create_texture({ type = .Hdr }, nil, 1600,900, arena)
     game_depth = ear.create_texture({ type = .Depth }, nil, 1600,900, arena)
@@ -78,15 +101,15 @@ after :: proc() {
         mx, my := eaw.mouse.x*640./f32(eaw.width), eaw.mouse.y*360./f32(eaw.height)
 
         /* objects */ {
-            ear.rect(0,0, 114,360, .2)
-            ear.rect(1,1, 112,358, .1)
+            ear.rect(0,0, 114,360, colors[2])
+            ear.rect(1,1, 112,358, colors[1])
 
-            ear.text(font, "editor", 2,2, 1)
+            ear.text(font, "editor", 2,2, colors[15])
         }
 
         /* buffers and stuff */ {
-            ear.rect(114,360-94, 640-64,94, .2)
-            ear.rect(115,361-94, 638-64,92, .1)
+            ear.rect(114,360-94, 640-64,94, colors[2])
+            ear.rect(115,361-94, 638-64,92, colors[1])
 
             changed_sel: bool
 
@@ -121,8 +144,8 @@ after :: proc() {
 
                 sel := eau.pointrect({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-95 }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
 
-                ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-95, f32(text_width)+1, f32(font.height)/16+1, sel || selected == i? .4 : .3)
-                ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-94, f32(text_width)-1, f32(font.height)/16-1, sel || selected == i? .3 : .2)
+                ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-95, f32(text_width)+1, f32(font.height)/16+1, sel || selected == i? colors[4] : colors[3])
+                ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-94, f32(text_width)-1, f32(font.height)/16-1, sel || selected == i? colors[3] : colors[2])
 
                 if sel && eaw.is_mouse_pressed(.Left) {
                     selected = i
@@ -144,7 +167,7 @@ after :: proc() {
                     y += int(font.height)/16 + 2
                 }
 
-                ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-94, 1,1)
+                ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-94, 1, colors[15])
 
                 strings.builder_destroy(name)
             }
@@ -161,8 +184,8 @@ after :: proc() {
         redraw_thing()
 
         /* info */ if selected != -1 {
-            ear.rect(116,1, 128,128, .2)
-            ear.rect(117,2, 126,126, .1)
+            ear.rect(116,1, 128,128, colors[2])
+            ear.rect(117,2, 126,126, colors[1])
 
             obj := &_hook.objects[selected]
 
@@ -180,7 +203,7 @@ after :: proc() {
             }
             strings.write_int(&name, selected)
 
-            ear.text(font, strings.to_string(name), 118, 3, 1)
+            ear.text(font, strings.to_string(name), 118, 3, colors[15])
 
             strings.builder_reset(&name)
 
@@ -192,14 +215,14 @@ after :: proc() {
 
             switch obj.type {
             case .None:
-                ear.text(font, "...what? this object is removed. how are you seeing this?", 118, offy, 1)
+                ear.text(font, "...what? this object is removed. how are you seeing this?", 118, offy, colors[15])
             case .Arena:
                 arena := (^eau.Arena)(obj.data)
 
                 strings.write_string(&name, "objects:")
                 strings.write_int(&name, len(arena.dests))
 
-                ear.text(font, strings.to_string(name), 118, offy, 1)
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
 
                 redraw_thing()
             case .Buffer:
@@ -212,13 +235,13 @@ after :: proc() {
                 case .Storage: type = "type:storage"
                 case .Index: type = "type:index"
                 }
-                ear.text(font, type, 118, offy, 1)
+                ear.text(font, type, 118, offy, colors[15])
 
                 offy += charh
 
                 switch buf.desc.usage {
-                case .Dynamic: ear.text(font, "usage:dynamic", 118, offy, 1)
-                case .Static: ear.text(font, "usage:static", 118, offy, 1)
+                case .Dynamic: ear.text(font, "usage:dynamic", 118, offy, colors[15])
+                case .Static: ear.text(font, "usage:static", 118, offy, colors[15])
                 }
 
                 offy += charh
@@ -227,7 +250,7 @@ after :: proc() {
                 strings.write_string(&name, "elements:")
                 strings.write_u64(&name, u64(buf.size/buf.desc.stride))
 
-                ear.text(font, strings.to_string(name), 118, offy, 1)
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
 
                 offy += charh
 
@@ -235,7 +258,7 @@ after :: proc() {
                 strings.write_string(&name, "stride:")
                 strings.write_u64(&name, u64(buf.desc.stride))
 
-                ear.text(font, strings.to_string(name), 118, offy, 1)
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
 
                 redraw_thing()
             case .Texture:
@@ -246,15 +269,15 @@ after :: proc() {
                 strings.write_string(&name, ", height:")
                 strings.write_u64(&name, u64(tex.height))
 
-                ear.text(font, strings.to_string(name), 118, offy, 1)
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
                 
                 offy += charh
 
                 switch tex.desc.type {
-                case .Color: ear.text(font, "type:color", 118, offy, 1)
-                case .Depth: ear.text(font, "type:depth", 118, offy, 1)
-                case .Hdr: ear.text(font, "type:hdr", 118, offy, 1)
-                case .Hdr32: ear.text(font, "type:hdr32", 118, offy, 1)
+                case .Color: ear.text(font, "type:color", 118, offy, colors[15])
+                case .Depth: ear.text(font, "type:depth", 118, offy, colors[15])
+                case .Hdr: ear.text(font, "type:hdr", 118, offy, colors[15])
+                case .Hdr32: ear.text(font, "type:hdr32", 118, offy, colors[15])
                 }
 
                 offy += charh
@@ -265,33 +288,33 @@ after :: proc() {
                 redraw_thing()
                 ear.bind_framebuffer(nil)
                
-                ear.tex(tex, 118./640.*f32(eaw.width), offy/360.*f32(eaw.height), 124/640.*f32(eaw.width),height/360.*f32(eaw.height), 1)
+                ear.tex(tex, 118./640.*f32(eaw.width), offy/360.*f32(eaw.height), 124/640.*f32(eaw.width),height/360.*f32(eaw.height), colors[15])
             case .Pipeline:
                 pln := (^ear.Pipeline)(obj.data)
 
-                ear.text(font, pln.desc.depth? "depth:enabled" : "depth:disabled", 118,offy, 1)
+                ear.text(font, pln.desc.depth? "depth:enabled" : "depth:disabled", 118,offy, colors[15])
 
                 offy += charh
 
                 switch pln.desc.cull_mode {
-                case .None: ear.text(font, "culling:none", 118, offy, 1)
-                case .Front: ear.text(font, "culling:front", 118, offy, 1)
-                case .Back: ear.text(font, "culling:back", 118, offy, 1)
+                case .None: ear.text(font, "culling:none", 118, offy, colors[15])
+                case .Front: ear.text(font, "culling:front", 118, offy, colors[15])
+                case .Back: ear.text(font, "culling:back", 118, offy, colors[15])
                 }
 
                 offy += charh
 
                 if pln.desc.cull_mode != .None {
                     switch pln.desc.front {
-                    case .CW: ear.text(font, "front:cw", 118, offy, 1)
-                    case .CCW: ear.text(font, "front:ccw", 118, offy, 1)
+                    case .CW: ear.text(font, "front:cw", 118, offy, colors[15])
+                    case .CCW: ear.text(font, "front:ccw", 118, offy, colors[15])
                     }
                     offy += charh
                 }
 
                 switch pln.desc.fill_mode {
-                case .Fill: ear.text(font, "fill:fill", 118, offy, 1)
-                case .Line: ear.text(font, "fill:line", 118, offy, 1)
+                case .Fill: ear.text(font, "fill:fill", 118, offy, colors[15])
+                case .Line: ear.text(font, "fill:line", 118, offy, colors[15])
                 }
 
                 offy += charh
@@ -330,11 +353,11 @@ after :: proc() {
                         case ear.BlendOp: blendop_add(builder, t)
                         }
 
-                        ear.text(font, strings.to_string(builder^), 118, offy^, 1)
+                        ear.text(font, strings.to_string(builder^), 118, offy^, colors[15])
                         offy^ += charh
                     }
 
-                    ear.text(font, "blend state:", 118, offy, 1)
+                    ear.text(font, "blend state:", 118, offy, colors[15])
                     offy += charh
 
                     add_thing(&name, "- src-color:", &offy, charh, blend.src_color)
@@ -343,7 +366,7 @@ after :: proc() {
                     add_thing(&name, "- src-alpha:", &offy, charh, blend.src_alpha)
                     add_thing(&name, "- dst-alpha:", &offy, charh, blend.dst_alpha)
                     add_thing(&name, "- alpha-op:", &offy, charh, blend.alpha_op)
-                } else do ear.text(font, "blending disabled", 118, offy, 1)
+                } else do ear.text(font, "blending disabled", 118, offy, colors[15])
 
                 offy += charh
 
@@ -357,7 +380,7 @@ after :: proc() {
                 strings.write_string(&name, ", height:")
                 strings.write_u64(&name, u64(fb.desc.height))
 
-                ear.text(font, strings.to_string(name), 118, offy, 1)
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
 
                 strings.builder_reset(&name)
 
@@ -369,7 +392,7 @@ after :: proc() {
                     strings.write_string(&name, "- color tex ")
                     strings.write_int(&name, col^.idx)
                     
-                    ear.text(font, strings.to_string(name), 118, offy, 1)
+                    ear.text(font, strings.to_string(name), 118, offy, colors[15])
 
                     strings.builder_reset(&name)
                 }
@@ -379,7 +402,7 @@ after :: proc() {
                     strings.write_string(&name, "- depth tex ")
                     strings.write_int(&name, fb.desc.out_depth.idx)
 
-                    ear.text(font, strings.to_string(name), 118, offy, 1)
+                    ear.text(font, strings.to_string(name), 118, offy, colors[15])
                 }
 
                 redraw_thing()
