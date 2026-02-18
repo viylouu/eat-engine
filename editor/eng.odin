@@ -404,6 +404,8 @@ after :: proc() {
                         text_width := f32(len(sname)) * f32(font.width)/16
                         ear.rect(118, offy, text_width, f32(font.height)/16, colors[1])
                         ear.text(font, sname, 118, offy, colors[15])
+
+                        offy += charh
                     }
                 }
 
