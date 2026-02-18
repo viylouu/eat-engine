@@ -372,6 +372,59 @@ after :: proc() {
 
                 redraw_thing()
             case .TexArray:
+                arr := (^ear.TexArray)(obj.data)
+
+                strings.write_string(&name, "layers:")
+                strings.write_u64(&name, u64(arr.desc.layers))
+
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
+
+                offy += charh
+
+                strings.builder_reset(&name)
+                strings.write_string(&name, "width:")
+                strings.write_u64(&name, u64(arr.desc.width))
+                strings.write_string(&name, ", height:")
+                strings.write_u64(&name, u64(arr.desc.height))
+
+                ear.text(font, strings.to_string(name), 118, offy, colors[15])
+
+                offy += charh
+
+                switch arr.desc.type {
+                case .Color: ear.text(font, "type:color", 118, offy, colors[15])
+                case .Depth: ear.text(font, "type:depth", 118, offy, colors[15])
+                case .Hdr: ear.text(font, "type:hdr", 118, offy, colors[15])
+                case .Hdr32: ear.text(font, "type:hdr32", 118, offy, colors[15])
+                }
+
+                offy += charh
+
+                switch arr.desc.filter {
+                case .Nearest: ear.text(font, "filter:nearest", 118, offy, colors[15])
+                case .Linear: ear.text(font, "filter:linear", 118, offy, colors[15])
+                }
+
+                offy += charh
+
+                ear.text(font, "textures:", 118, offy, colors[15])
+
+                offy += charh
+
+                for tex in arr.texs {
+                    if tex == nil {
+                        ear.text(font, "- nil", 118, offy, colors[15])
+                    } else {
+                        strings.builder_reset(&name)
+                        strings.write_string(&name, "- texture ")
+                        strings.write_u64(&name, u64(tex.idx))
+                        ear.text(font, strings.to_string(name), 118, offy, colors[15])
+                    }
+
+                    offy += charh
+                }
+
+                redraw_thing()
             case .Framebuffer:
                 fb := (^ear.Framebuffer)(obj.data)
 
