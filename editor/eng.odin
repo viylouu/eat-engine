@@ -366,6 +366,41 @@ after :: proc() {
                     add_thing(&name, "- src-alpha:", &offy, charh, blend.src_alpha)
                     add_thing(&name, "- dst-alpha:", &offy, charh, blend.dst_alpha)
                     add_thing(&name, "- alpha-op:", &offy, charh, blend.alpha_op)
+
+                    if len(pln.desc.vertex_attribs) == 0 do ear.text(font, "no vertex attribs", 118, offy, colors[15])
+                    else {
+                        ear.text(font, "vertex attribs:", 118, offy, colors[15])
+
+                        offy += charh
+
+                        for attrib in pln.desc.vertex_attribs {
+                            strings.builder_reset(&name)
+                            strings.write_string(&name, " - loc:")
+                            strings.write_u64(&name, u64(attrib.location))
+                            strings.write_string(&name, ", type:")
+                            type_s: string
+                            switch attrib.type {
+                            case .Float: type_s = "float"
+                            case .Int: type_s = "int"
+                            }
+                            strings.write_string(&name, type_s)
+                            strings.write_string(&name, ", comps:")
+                            strings.write_u64(&name, u64(attrib.components))
+                            if attrib.type != .Int {
+                                strings.write_string(&name, ", norm:")
+                                strings.write_string(&name, attrib.norm? "true" : "false")
+                            }
+                            strings.write_string(&name, ", off:")
+                            strings.write_u64(&name, u64(attrib.offset))
+                            strings.write_string(&name, ", slot:")
+                            strings.write_u64(&name, u64(attrib.slot))
+
+                            sname := strings.to_string(name)
+                            text_width := f32(len(sname)) * f32(font.width)/16
+                            ear.rect(118, offy, text_width, f32(font.height)/16, colors[1])
+                            ear.text(font, sname, 118, offy, colors[15])
+                        }
+                    }
                 } else do ear.text(font, "blending disabled", 118, offy, colors[15])
 
                 offy += charh
