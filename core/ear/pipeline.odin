@@ -106,6 +106,9 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
         bind = bind_pipeline,
     })
 
+    pln.desc.vertex_attribs = make([]VertexAttribDesc, len(desc.vertex_attribs))
+    for &attrib,i in pln.desc.vertex_attribs do attrib = desc.vertex_attribs[i]
+
     vsh := gl.CreateShader(gl.VERTEX_SHADER)
         defer gl.DeleteShader(vsh)
     gl.ShaderSource(vsh, 1, pln.desc.vertex.source, nil)
@@ -154,7 +157,7 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
     gl.GenVertexArrays(1, &pln.vao)
     gl.BindVertexArray(pln.vao)
 
-    for attrib in desc.vertex_attribs {
+    for attrib in pln.desc.vertex_attribs {
         switch attrib.type {
         case .Float:
             gl.VertexAttribFormat(
@@ -189,6 +192,7 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
 
 delete_pipeline :: proc(pln: ^Pipeline) {
     gl.DeleteProgram(pln.id)
+    delete(pln.desc.vertex_attribs)
 
     if pln.dest != nil do pln.dest.data = nil
     _hook.remove_object(pln.idx)
