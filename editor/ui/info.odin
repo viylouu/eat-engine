@@ -8,6 +8,7 @@ import "../../core/eaw"
 
 import "../_hook"
 import "info"
+import "../types"
 
 info :: proc() {
     redraw_thing :: proc() {
@@ -52,6 +53,9 @@ info_non_obj :: proc(redraw_thing: proc()) {
     charh := f32(font.height)/16 + 1
     offy += charh
 
+    ear.rect(118,offy, 126,1, colors[2])
+    offy += 2
+
     redraw_thing()
 
     switch obj.type {
@@ -66,5 +70,50 @@ info_non_obj :: proc(redraw_thing: proc()) {
 }
 
 info_obj :: proc(redraw_thing: proc()) {
-    
+    i := 0
+    item := types.init_obj
+    for item != nil {
+        if i != selected {
+            item = item.next
+            i += 1
+            continue
+        }
+
+        obj := (^types.Object(any))(item.obj)
+
+        ear.text(font, obj.name, 118, 3, colors[15])
+
+        offy: f32 = 3
+        charh := f32(font.height)/16 + 1
+        offy += charh
+
+        ear.rect(118,offy, 126,1, colors[2])
+        offy += 2
+
+        name := strings.builder_make()
+        defer strings.builder_destroy(&name)
+
+        strings.write_string(&name, "pos:")
+        strings.write_f32(&name, obj.pos.x, 'f')
+        strings.write_rune(&name, ',')
+        strings.write_f32(&name, obj.pos.y, 'f')
+        strings.write_rune(&name, ',')
+        strings.write_f32(&name, obj.pos.z, 'f')
+
+        ear.text(font, strings.to_string(name), 118, offy, colors[15])
+        offy += charh
+
+        strings.builder_reset(&name)
+        strings.write_string(&name, "rot:")
+        strings.write_f32(&name, obj.rot.x, 'f')
+        strings.write_rune(&name, ',')
+        strings.write_f32(&name, obj.rot.y, 'f')
+        strings.write_rune(&name, ',')
+        strings.write_f32(&name, obj.rot.z, 'f')
+
+        ear.text(font, strings.to_string(name), 118, offy, colors[15])
+
+        redraw_thing()
+        break
+    }
 }

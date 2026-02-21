@@ -20,6 +20,9 @@ Object :: struct($T: typeid) {
 
     delete: proc(obj: ^Object(T)),
 
+    pos: [3]f32,
+    rot: [3]f32,
+
     tag_funcs: struct{
         init: Maybe(proc(rawptr)),
         update: Maybe(proc(rawptr)),
