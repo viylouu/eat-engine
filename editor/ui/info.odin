@@ -112,6 +112,39 @@ info_obj :: proc(redraw_thing: proc()) {
         strings.write_f32(&name, obj.rot.z, 'f')
 
         ear.text(font, strings.to_string(name), 118, offy, colors[15])
+        offy += charh
+
+        has_funcs: bool
+        strings.builder_reset(&name)
+        strings.write_string(&name, "funcs:")
+
+        if _,ok := obj.tag_funcs.init.?; ok {
+            strings.write_string(&name, "init")
+            has_funcs = true
+        }
+
+        if _,ok := obj.tag_funcs.update.?; ok {
+            if has_funcs do strings.write_rune(&name, ',')
+            strings.write_string(&name, "update")
+            has_funcs = true
+        }
+
+        if _,ok := obj.tag_funcs.draw.?; ok {
+            if has_funcs do strings.write_rune(&name, ',')
+            strings.write_string(&name, "draw")
+            has_funcs = true
+        }
+
+        if _,ok := obj.tag_funcs.stop.?; ok {
+            if has_funcs do strings.write_rune(&name, ',')
+            strings.write_string(&name, "stop")
+            has_funcs = true
+        }
+
+        if !has_funcs do strings.write_string(&name, "none")
+
+        ear.text(font, strings.to_string(name), 118, offy, colors[15])
+        offy += charh
 
         redraw_thing()
         break
