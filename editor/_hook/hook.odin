@@ -41,3 +41,4 @@ init :: proc() {
 stop :: proc() {
     delete(objects)
 }
+

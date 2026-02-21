@@ -20,6 +20,13 @@ main :: proc() {
 
     editor.flip_fb()
 
+    MyObject :: struct{
+        init: proc(^editor.Object(MyObject)) "init",
+    }
+
+    obj := editor.create_object(MyObject{ init = proc(obj: ^editor.Object(MyObject)) { fmt.println("fuck yeah") } })
+    defer obj->delete()
+
     for eat.frame() {
         ear.clear([3]f32{ .2, .4, .3 })
 
