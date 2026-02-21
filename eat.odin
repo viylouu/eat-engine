@@ -13,6 +13,9 @@ import "editor/_hook"
 // this will get changed by the editor for draw area width/height
 width, height: u32
 
+@(private)
+has_framed: bool
+
 init :: proc(
     _width, _height: i32,
     title: cstring,
@@ -31,6 +34,8 @@ init :: proc(
 }
 
 stop :: proc() {
+    editor.stop_objects()
+
     ear.stop()
     eaw.stop()
 
@@ -51,6 +56,13 @@ frame :: proc() -> bool {
 
         width = 1600
         height = 900
+
+        if !has_framed {
+            editor.init_objects()
+        } has_framed = true
+
+        editor.update_objects()
+        editor.draw_objects()
     } else {
         width = u32(eaw.width)
         height = u32(eaw.height)

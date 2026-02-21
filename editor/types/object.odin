@@ -1,6 +1,10 @@
 package editor_types
 
+import "core:fmt"
+
 import "../../core/eau"
+
+import "base:runtime"
 
 TypelessObj_LL :: struct{ obj: rawptr, t: typeid, prev: ^TypelessObj_LL, next: ^TypelessObj_LL }
 init_obj: ^TypelessObj_LL
@@ -15,6 +19,13 @@ Object :: struct($T: typeid) {
     dest: ^eau.Destructor,
 
     delete: proc(obj: ^Object(T)),
+
+    my_shit: struct{
+        init: Maybe(proc(rawptr)),
+        update: Maybe(proc(rawptr)),
+        draw: Maybe(proc(rawptr)),
+        stop: Maybe(proc(rawptr)),
+    },
 }
 
 
@@ -45,6 +56,27 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
         end_obj = &obj.tobj
     }
 
+    info := runtime.type_info_base(type_info_of(T))
+
+    #partial switch str in info.variant {
+    case: // do nothing
+    case runtime.Type_Info_Struct:
+        for i in 0..<str.field_count do switch str.tags[i] {
+        case "init", "draw", "update", "stop": #partial switch func in str.types[i].variant {
+            case: assert(false)
+            case runtime.Type_Info_Procedure:
+                func_ptr := (^rawptr)(uintptr(obj.data) + str.offsets[i])
+                fn := transmute(proc(rawptr))(func_ptr^)
+                switch str.tags[i] {
+                case "init":   obj.my_shit.init   = fn
+                case "draw":   obj.my_shit.draw   = fn
+                case "update": obj.my_shit.update = fn
+                case "stop":   obj.my_shit.stop   = fn
+                }
+            }
+        }
+    }
+
     return obj
 }
 
@@ -72,4 +104,42 @@ delete_object :: proc(obj: ^Object($T)) {
 
     if obj.dest != nil do obj.dest.data = nil
     free(obj)
+}
+
+
+wrap_object_proc :: proc($p: proc(^Object($T))) -> proc(rawptr) {
+    return proc(obj: rawptr) { p((^Object(T))(obj)) }
+}
+
+
+init_objects :: proc() {
+    item: ^TypelessObj_LL = init_obj
+    for item != nil {
+        if init, ok := (^Object(any))(item.obj).my_shit.init.?; ok do init(item.obj)
+        item = item.next
+    }
+}
+
+draw_objects :: proc() {
+    item: ^TypelessObj_LL = init_obj
+    for item != nil {
+        if draw, ok := (^Object(any))(item.obj).my_shit.draw.?; ok do draw(item.obj)
+        item = item.next
+    }
+}
+
+update_objects :: proc() {
+    item: ^TypelessObj_LL = init_obj
+    for item != nil {
+        if update, ok := (^Object(any))(item.obj).my_shit.update.?; ok do update(item.obj)
+        item = item.next
+    }
+}
+
+stop_objects :: proc() {
+    item: ^TypelessObj_LL = init_obj
+    for item != nil {
+        if stop, ok := (^Object(any))(item.obj).my_shit.stop.?; ok do stop(item.obj)
+        item = item.next
+    }
 }

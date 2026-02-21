@@ -21,10 +21,26 @@ main :: proc() {
     editor.flip_fb()
 
     MyObject :: struct{
-        init: proc(^editor.Object(MyObject)) "init",
+        init: proc(rawptr) "init",
+        draw: proc(rawptr) "draw",
+        update: proc(rawptr) "update",
+        stop: proc(rawptr) "stop",
     }
 
-    obj := editor.create_object(MyObject{ init = proc(obj: ^editor.Object(MyObject)) { fmt.println("fuck yeah") } })
+    obj := editor.create_object(MyObject{ 
+            init = editor.wrap_object_proc(proc(obj: ^editor.Object(MyObject)) { 
+                fmt.println("GOOON")
+            }),
+            draw = editor.wrap_object_proc(proc(obj: ^editor.Object(MyObject)) {
+                fmt.println("move")
+            }),
+            update = editor.wrap_object_proc(proc(obj: ^editor.Object(MyObject)) {
+                fmt.println("eyeballs")
+            }),
+            stop = editor.wrap_object_proc(proc(obj: ^editor.Object(MyObject)) {
+                fmt.println("aww")
+            }),
+        })
     defer obj->delete()
 
     for eat.frame() {

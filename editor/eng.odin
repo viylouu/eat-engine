@@ -4,7 +4,6 @@ import "core:fmt"
 import "core:strings"
 import "core:strconv"
 import "core:os"
-import "base:runtime"
 
 import "../core/eaw"
 import "../core/eau"
@@ -12,6 +11,7 @@ import "../core/ear"
 
 import "_hook"
 import "ui"
+import "types"
 
 // read by eat
 used: bool
@@ -78,4 +78,21 @@ after :: proc() {
 
         if eaw.is_mouse_pressed(.Left) && !changed_sel do ui.selected = -1
     }
+}
+
+init_objects :: proc() {
+    types.init_objects()
+}
+
+update_objects :: proc() {
+    if enabled do return
+    types.update_objects()
+}
+
+draw_objects :: proc() {
+    types.draw_objects()
+}
+
+stop_objects :: proc() {
+    types.stop_objects()
 }
