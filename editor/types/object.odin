@@ -20,7 +20,7 @@ Object :: struct($T: typeid) {
 
     delete: proc(obj: ^Object(T)),
 
-    my_shit: struct{
+    tag_funcs: struct{
         init: Maybe(proc(rawptr)),
         update: Maybe(proc(rawptr)),
         draw: Maybe(proc(rawptr)),
@@ -68,10 +68,10 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
                 func_ptr := (^rawptr)(uintptr(obj.data) + str.offsets[i])
                 fn := transmute(proc(rawptr))(func_ptr^)
                 switch str.tags[i] {
-                case "init":   obj.my_shit.init   = fn
-                case "draw":   obj.my_shit.draw   = fn
-                case "update": obj.my_shit.update = fn
-                case "stop":   obj.my_shit.stop   = fn
+                case "init":   obj.tag_funcs.init   = fn
+                case "draw":   obj.tag_funcs.draw   = fn
+                case "update": obj.tag_funcs.update = fn
+                case "stop":   obj.tag_funcs.stop   = fn
                 }
             }
         }
@@ -115,7 +115,7 @@ wrap_object_proc :: proc($p: proc(^Object($T))) -> proc(rawptr) {
 init_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if init, ok := (^Object(any))(item.obj).my_shit.init.?; ok do init(item.obj)
+        if init, ok := (^Object(any))(item.obj).tag_funcs.init.?; ok do init(item.obj)
         item = item.next
     }
 }
@@ -123,7 +123,7 @@ init_objects :: proc() {
 draw_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if draw, ok := (^Object(any))(item.obj).my_shit.draw.?; ok do draw(item.obj)
+        if draw, ok := (^Object(any))(item.obj).tag_funcs.draw.?; ok do draw(item.obj)
         item = item.next
     }
 }
@@ -131,7 +131,7 @@ draw_objects :: proc() {
 update_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if update, ok := (^Object(any))(item.obj).my_shit.update.?; ok do update(item.obj)
+        if update, ok := (^Object(any))(item.obj).tag_funcs.update.?; ok do update(item.obj)
         item = item.next
     }
 }
@@ -139,7 +139,7 @@ update_objects :: proc() {
 stop_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if stop, ok := (^Object(any))(item.obj).my_shit.stop.?; ok do stop(item.obj)
+        if stop, ok := (^Object(any))(item.obj).tag_funcs.stop.?; ok do stop(item.obj)
         item = item.next
     }
 }
