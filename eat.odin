@@ -34,8 +34,6 @@ init :: proc(
 }
 
 stop :: proc() {
-    editor.stop_objects()
-
     ear.stop()
     eaw.stop()
 

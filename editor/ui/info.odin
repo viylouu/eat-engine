@@ -93,17 +93,45 @@ info_obj :: proc(redraw_thing: proc()) {
         name := strings.builder_make()
         defer strings.builder_destroy(&name)
 
-        strings.write_string(&name, "pos:")
-        strings.write_f32(&name, obj.pos.x, 'f')
-        strings.write_rune(&name, ',')
-        strings.write_f32(&name, obj.pos.y, 'f')
-        strings.write_rune(&name, ',')
-        strings.write_f32(&name, obj.pos.z, 'f')
+        if obj.pos2d != nil {
+            strings.write_string(&name, "pos:")
+            strings.write_f32(&name, obj.pos2d.x, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f32(&name, obj.pos2d.y, 'f')
 
-        ear.text(font, strings.to_string(name), 118, offy, colors[15])
-        offy += charh
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        } if obj.pos2d64 != nil {
+            strings.write_string(&name, "pos:")
+            strings.write_f64(&name, obj.pos2d64.x, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f64(&name, obj.pos2d64.y, 'f')
 
-        strings.builder_reset(&name)
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        } if obj.pos3d != nil {
+            strings.write_string(&name, "pos:")
+            strings.write_f32(&name, obj.pos3d.x, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f32(&name, obj.pos3d.y, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f32(&name, obj.pos3d.z, 'f')
+
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        } if obj.pos3d64 != nil {
+            strings.write_string(&name, "pos:")
+            strings.write_f64(&name, obj.pos3d64.x, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f64(&name, obj.pos3d64.y, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f64(&name, obj.pos3d64.z, 'f')
+
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        }
+
+        /*strings.builder_reset(&name)
         strings.write_string(&name, "rot:")
         strings.write_f32(&name, obj.rot.x, 'f')
         strings.write_rune(&name, ',')
@@ -112,30 +140,30 @@ info_obj :: proc(redraw_thing: proc()) {
         strings.write_f32(&name, obj.rot.z, 'f')
 
         ear.text(font, strings.to_string(name), 118, offy, colors[15])
-        offy += charh
+        offy += charh*/
 
         has_funcs: bool
         strings.builder_reset(&name)
         strings.write_string(&name, "funcs:")
 
-        if _,ok := obj.tag_funcs.init.?; ok {
+        if obj.tag_funcs.init != nil {
             strings.write_string(&name, "init")
             has_funcs = true
         }
 
-        if _,ok := obj.tag_funcs.update.?; ok {
+        if obj.tag_funcs.update != nil {
             if has_funcs do strings.write_rune(&name, ',')
             strings.write_string(&name, "update")
             has_funcs = true
         }
 
-        if _,ok := obj.tag_funcs.draw.?; ok {
+        if obj.tag_funcs.draw != nil {
             if has_funcs do strings.write_rune(&name, ',')
             strings.write_string(&name, "draw")
             has_funcs = true
         }
 
-        if _,ok := obj.tag_funcs.stop.?; ok {
+        if obj.tag_funcs.stop != nil {
             if has_funcs do strings.write_rune(&name, ',')
             strings.write_string(&name, "stop")
             has_funcs = true

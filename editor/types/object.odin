@@ -20,14 +20,16 @@ Object :: struct($T: typeid) {
 
     delete: proc(obj: ^Object(T)),
 
-    pos: [3]f32,
-    rot: [3]f32,
+    pos3d: ^[3]f32, rot3d: ^[3]f32,
+    pos2d: ^[2]f32, rot2d: ^f32,
+    pos3d64: ^[3]f64, rot3d64: ^[3]f64,
+    pos2d64: ^[2]f64, rot2d64: ^f64,
 
     tag_funcs: struct{
-        init: Maybe(proc(rawptr)),
-        update: Maybe(proc(rawptr)),
-        draw: Maybe(proc(rawptr)),
-        stop: Maybe(proc(rawptr)),
+        init: /*proc(rawptr)*/^ObjectProc,
+        update: /*proc(rawptr)*/^ObjectProc,
+        draw: /*proc(rawptr)*/^ObjectProc,
+        stop: /*proc(rawptr)*/^ObjectProc,
     },
 }
 
@@ -65,16 +67,57 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
     case: // do nothing
     case runtime.Type_Info_Struct:
         for i in 0..<str.field_count do switch str.tags[i] {
-        case "init", "draw", "update", "stop": #partial switch func in str.types[i].variant {
-            case: assert(false)
-            case runtime.Type_Info_Procedure:
-                func_ptr := (^rawptr)(uintptr(obj.data) + str.offsets[i])
-                fn := transmute(proc(rawptr))(func_ptr^)
+        case "init", "draw", "update", "stop": 
+            obj_func := str.types[i]
+            #partial switch func in obj_func.variant {
+            case: assert(type_of(obj_func.variant) == runtime.Type_Info_Named)
+            /*case runtime.Type_Info_Procedure:
+                #partial switch params in func.params.variant {
+                case: assert(false)
+                case runtime.Type_Info_Parameters:
+                    assert(len(params.types) == 1)
+                    // doesent work for some reason
+                    //for type in params.types do assert(type.variant == runtime.Type_Info_Pointer)
+                }
+
+                func_ptr := (^proc(rawptr))(uintptr(obj.data) + str.offsets[i])
+                if func_ptr == nil do continue
+
                 switch str.tags[i] {
-                case "init":   obj.tag_funcs.init   = fn
-                case "draw":   obj.tag_funcs.draw   = fn
-                case "update": obj.tag_funcs.update = fn
-                case "stop":   obj.tag_funcs.stop   = fn
+                case "init":   obj.tag_funcs.init   = func_ptr^
+                case "draw":   obj.tag_funcs.draw   = func_ptr^
+                case "update": obj.tag_funcs.update = func_ptr^
+                case "stop":   obj.tag_funcs.stop   = func_ptr^
+                }*/
+            case runtime.Type_Info_Named:
+                assert(func.name == "ObjectProc")
+
+                ptr := (^ObjectProc)(uintptr(obj.data) + str.offsets[i])
+                
+                switch str.tags[i] {
+                case "init":   obj.tag_funcs.init = ptr
+                case "draw":   obj.tag_funcs.draw = ptr
+                case "update": obj.tag_funcs.update = ptr
+                case "stop":   obj.tag_funcs.stop = ptr
+                }
+            }
+        case "position": 
+            pos_arr := str.types[i]
+            #partial switch pos in pos_arr.variant {
+            case: assert(type_of(pos_arr.variant) == runtime.Type_Info_Array)
+            case runtime.Type_Info_Array:
+                pos_ptr := (^rawptr)(uintptr(obj.data) + str.offsets[i])
+
+                switch pos.count {
+                case: assert(pos.count == 2 || pos.count == 3)
+                case 2:
+                    if pos.elem_size == size_of(f32) do obj.pos2d = (^[2]f32)(pos_ptr)
+                    else if pos.elem_size == size_of(f64) do obj.pos2d64 = (^[2]f64)(pos_ptr)
+                    else do assert(pos.elem_size == size_of(f32) || pos.elem_size == size_of(f64))
+                case 3:
+                    if pos.elem_size == size_of(f32) do obj.pos3d = (^[3]f32)(pos_ptr)
+                    else if pos.elem_size == size_of(f64) do obj.pos3d64 = (^[3]f64)(pos_ptr)
+                    else do assert(pos.elem_size == size_of(f32) || pos.elem_size == size_of(f64))
                 }
             }
         }
@@ -84,10 +127,13 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
 }
 
 _create_object_name :: proc(data: $T, name: string) -> ^Object(T) { return _create_object_all(data, name, nil) }
-_create_object_arena :: proc(data: $T, arena: ^eau.Arena) -> ^Object(T) { return _create_object_all(data, "Object", arena) }
+_create_object_arena :: proc(data: $T, arena: ^eau.Arena) -> ^Object(T) { return _create_object_all(data, "object", arena) }
 _create_object_none :: proc(data: $T) -> ^Object(T) { return _create_object_arena(data, nil) }
 
 delete_object :: proc(obj: ^Object($T)) {
+    //if stop, ok := obj.tag_funcs.stop.?; ok do stop(obj)
+    if stop := obj.tag_funcs.stop; stop != nil do stop.fn(obj, stop.ctx)
+
     free(obj.data)
 
     if obj.tobj.next != nil {
@@ -110,15 +156,27 @@ delete_object :: proc(obj: ^Object($T)) {
 }
 
 
-wrap_object_proc :: proc($p: proc(^Object($T))) -> proc(rawptr) {
-    return proc(obj: rawptr) { p((^Object(T))(obj)) }
+ObjectProc :: struct{
+    fn: proc(rawptr, rawptr),
+    ctx: rawptr,
+}
+
+wrap_object_proc :: proc($p: proc(^Object($T))) -> ObjectProc {
+    //return proc(obj: rawptr) { p((^Object(T))(obj)) }
+    return ObjectProc{
+        fn = proc(obj: rawptr, ctx: rawptr) {
+            (proc(^Object(T))(ctx)((^Object(T))(obj)))
+        },
+        ctx = rawptr(p),
+    }
 }
 
 
 init_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if init, ok := (^Object(any))(item.obj).tag_funcs.init.?; ok do init(item.obj)
+        //if init, ok := (^Object(any))(item.obj).tag_funcs.init.?; ok do init(item.obj)
+        if init := (^Object(any))(item.obj).tag_funcs.init; init != nil do init.fn(item.obj, init.ctx)
         item = item.next
     }
 }
@@ -126,7 +184,8 @@ init_objects :: proc() {
 draw_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if draw, ok := (^Object(any))(item.obj).tag_funcs.draw.?; ok do draw(item.obj)
+        //if draw, ok := (^Object(any))(item.obj).tag_funcs.draw.?; ok do draw(item.obj)
+        if draw := (^Object(any))(item.obj).tag_funcs.draw; draw != nil do draw.fn(item.obj, draw.ctx)
         item = item.next
     }
 }
@@ -134,15 +193,16 @@ draw_objects :: proc() {
 update_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        if update, ok := (^Object(any))(item.obj).tag_funcs.update.?; ok do update(item.obj)
+        //if update, ok := (^Object(any))(item.obj).tag_funcs.update.?; ok do update(item.obj)
+        if up := (^Object(any))(item.obj).tag_funcs.update; up != nil do up.fn(item.obj, up.ctx)
         item = item.next
     }
 }
 
-stop_objects :: proc() {
+/*stop_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
         if stop, ok := (^Object(any))(item.obj).tag_funcs.stop.?; ok do stop(item.obj)
         item = item.next
     }
-}
+}*/

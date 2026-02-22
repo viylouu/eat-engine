@@ -93,6 +93,6 @@ draw_objects :: proc() {
     types.draw_objects()
 }
 
-stop_objects :: proc() {
+/*stop_objects :: proc() {
     types.stop_objects()
-}
+}*/
