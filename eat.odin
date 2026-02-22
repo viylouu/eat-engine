@@ -11,7 +11,10 @@ import "editor/_hook"
 // use this instead of the eaw fields
 // - unless you want the window's width
 // this will get changed by the editor for draw area width/height
+// also, the time field is changed from the editor to not change when the editor is on
+// this is because the editor pauses updates
 width, height: u32
+time, delta: f32
 
 @(private)
 has_framed: bool
@@ -61,9 +64,17 @@ frame :: proc() -> bool {
 
         editor.update_objects()
         editor.draw_objects()
+
+        if !editor.enabled {
+            delta = eaw.delta
+            time += delta
+        }
     } else {
         width = u32(eaw.width)
         height = u32(eaw.height)
+
+        time = eaw.time
+        delta = eaw.delta
     }
 
     return true

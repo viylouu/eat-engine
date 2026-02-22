@@ -33,6 +33,7 @@ myobj_stop :: proc(obj: ^editor.Object(MyObject)) {
     fmt.println("aww")
 }
 
+
 main :: proc() {
     eat.init(
             1600, 900,
@@ -46,13 +47,11 @@ main :: proc() {
 
     editor.flip_fb()
 
-    
-
     obj := editor.create_object(MyObject{ 
-            init = editor.wrap_object_proc(myobj_init),
-            draw = editor.wrap_object_proc(myobj_draw),
+            init   = editor.wrap_object_proc(myobj_init),
+            draw   = editor.wrap_object_proc(myobj_draw),
             update = editor.wrap_object_proc(myobj_update),
-            stop = editor.wrap_object_proc(myobj_stop),
+            stop   = editor.wrap_object_proc(myobj_stop),
 
             pos = { 32,64 },
             rot = 3.14159/2,
