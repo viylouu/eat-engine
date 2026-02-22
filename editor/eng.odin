@@ -24,6 +24,8 @@ game_fb: ^ear.Framebuffer
 enabled: bool
 flipped: bool
 
+prev_mouse: eaw.MouseMode
+
 
 hook :: proc() {
     used = true

@@ -71,8 +71,11 @@ MouseMode :: enum{
     Hidden,
     Locked,
 }
+cur_mouse_mode: MouseMode
 
 mouse_mode :: proc(mode: MouseMode) {
+    cur_mouse_mode = mode
+
     switch mode {
     case .Normal:
         glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_NORMAL)
