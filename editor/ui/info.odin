@@ -131,16 +131,43 @@ info_obj :: proc(redraw_thing: proc()) {
             offy += charh
         }
 
-        /*strings.builder_reset(&name)
-        strings.write_string(&name, "rot:")
-        strings.write_f32(&name, obj.rot.x, 'f')
-        strings.write_rune(&name, ',')
-        strings.write_f32(&name, obj.rot.y, 'f')
-        strings.write_rune(&name, ',')
-        strings.write_f32(&name, obj.rot.z, 'f')
+        if obj.rot2d != nil {
+            strings.builder_reset(&name)
+            strings.write_string(&name, "rot:")
+            strings.write_f32(&name, obj.rot2d^, 'f')
 
-        ear.text(font, strings.to_string(name), 118, offy, colors[15])
-        offy += charh*/
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        } if obj.rot2d64 != nil {
+            strings.builder_reset(&name)
+            strings.write_string(&name, "rot:")
+            strings.write_f64(&name, obj.rot2d64^, 'f')
+
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        } if obj.rot3d != nil {
+            strings.builder_reset(&name)
+            strings.write_string(&name, "rot:")
+            strings.write_f32(&name, obj.rot3d.x, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f32(&name, obj.rot3d.y, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f32(&name, obj.rot3d.z, 'f')
+
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        } if obj.rot3d64 != nil {
+            strings.builder_reset(&name)
+            strings.write_string(&name, "rot:")
+            strings.write_f64(&name, obj.rot3d64.x, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f64(&name, obj.rot3d64.y, 'f')
+            strings.write_rune(&name, ',')
+            strings.write_f64(&name, obj.rot3d64.z, 'f')
+
+            ear.text(font, strings.to_string(name), 118, offy, colors[15])
+            offy += charh
+        }
 
         has_funcs: bool
         strings.builder_reset(&name)

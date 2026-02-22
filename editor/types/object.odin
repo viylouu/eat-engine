@@ -71,24 +71,6 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
             obj_func := str.types[i]
             #partial switch func in obj_func.variant {
             case: assert(type_of(obj_func.variant) == runtime.Type_Info_Named)
-            /*case runtime.Type_Info_Procedure:
-                #partial switch params in func.params.variant {
-                case: assert(false)
-                case runtime.Type_Info_Parameters:
-                    assert(len(params.types) == 1)
-                    // doesent work for some reason
-                    //for type in params.types do assert(type.variant == runtime.Type_Info_Pointer)
-                }
-
-                func_ptr := (^proc(rawptr))(uintptr(obj.data) + str.offsets[i])
-                if func_ptr == nil do continue
-
-                switch str.tags[i] {
-                case "init":   obj.tag_funcs.init   = func_ptr^
-                case "draw":   obj.tag_funcs.draw   = func_ptr^
-                case "update": obj.tag_funcs.update = func_ptr^
-                case "stop":   obj.tag_funcs.stop   = func_ptr^
-                }*/
             case runtime.Type_Info_Named:
                 assert(func.name == "ObjectProc")
 
@@ -119,6 +101,27 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
                     else if pos.elem_size == size_of(f64) do obj.pos3d64 = (^[3]f64)(pos_ptr)
                     else do assert(pos.elem_size == size_of(f32) || pos.elem_size == size_of(f64))
                 }
+            }
+        case "rotation": 
+            rot_arr := str.types[i]
+            #partial switch rot in rot_arr.variant {
+            case: assert(type_of(rot_arr.variant) == runtime.Type_Info_Array || type_of(rot_arr.variant) == runtime.Type_Info_Float)
+            case runtime.Type_Info_Array:
+                rot_ptr := (^rawptr)(uintptr(obj.data) + str.offsets[i])
+
+                switch rot.count {
+                case: assert(rot.count == 3)
+                case 3:
+                    if rot.elem_size == size_of(f32) do obj.rot3d = (^[3]f32)(rot_ptr)
+                    else if rot.elem_size == size_of(f64) do obj.rot3d64 = (^[3]f64)(rot_ptr)
+                    else do assert(rot.elem_size == size_of(f32) || rot.elem_size == size_of(f64))
+                }
+            case runtime.Type_Info_Float:
+                rot_ptr := (^rawptr)(uintptr(obj.data) + str.offsets[i])
+
+                if rot_arr.size == size_of(f32) do obj.rot2d = (^f32)(rot_ptr)
+                else if rot_arr.size == size_of(f64) do obj.rot2d64 = (^f64)(rot_ptr)
+                else do assert(rot_arr.size == size_of(f32) || rot_arr.size == size_of(f64))
             }
         }
     }
