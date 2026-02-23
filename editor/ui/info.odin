@@ -10,7 +10,7 @@ import "../_hook"
 import "info"
 import "../types"
 
-info :: proc() {
+info :: proc(mx,my: f32, changed_sel: ^bool) {
     redraw_thing :: proc() {
         ear.bind_framebuffer(nil)
         ear.tex(edit_col, 0,f32(eaw.height), f32(eaw.width), -f32(eaw.height), 1)   
@@ -23,12 +23,12 @@ info :: proc() {
         ear.rect(116,1, 128,128, colors[2])
         ear.rect(117,2, 126,126, colors[1])
 
-        if !is_obj_selected do info_non_obj(redraw_thing)
-        else do info_obj(redraw_thing)
+        if !is_obj_selected do info_non_obj(mx,my, changed_sel, redraw_thing)
+        else do info_obj(mx,my, changed_sel, redraw_thing)
     }  
 }
 
-info_non_obj :: proc(redraw_thing: proc()) {
+info_non_obj :: proc(mx,my: f32, changed_sel: ^bool, redraw_thing: proc()) {
     obj := &_hook.objects[selected]
 
     name := strings.builder_make()
@@ -48,6 +48,31 @@ info_non_obj :: proc(redraw_thing: proc()) {
     ear.text(font, strings.to_string(name), 118, 3, colors[15])
 
     strings.builder_reset(&name)
+
+    if obj.arena != nil {
+        arena := (^eau.Arena)(obj.arena)
+
+        strings.write_string(&name, "arena ")
+        strings.write_int(&name, arena.idx)
+
+        sname := strings.to_string(name)
+        width := f32(len(sname)) * f32(font.width)/16
+
+        sel := eau.pointaabb({mx,my}, { { 126+117 - width, 2 }, { width, f32(font.height)/16+3 }, .TopLeft, 0 })
+
+        ear.rect(126+117 - width, 2, width, f32(font.height)/16+3, sel? colors[4] : colors[3])
+        ear.rect(126+118 - width, 3, width-2, f32(font.height)/16, sel? colors[3] : colors[2])
+
+        ear.text(font, sname, 126+118 - width, 3, colors[15])
+
+        strings.builder_reset(&name)
+
+        if sel && eaw.is_mouse_pressed(.Left) {
+            selected = arena.idx
+            changed_sel^ = true
+            is_obj_selected = false
+        }
+    }
 
     offy: f32 = 3
     charh := f32(font.height)/16 + 1
@@ -69,7 +94,7 @@ info_non_obj :: proc(redraw_thing: proc()) {
     }
 }
 
-info_obj :: proc(redraw_thing: proc()) {
+info_obj :: proc(mx,my: f32, changed_sel: ^bool, redraw_thing: proc()) {
     i := 0
     item := types.init_obj
     for item != nil {
@@ -83,15 +108,40 @@ info_obj :: proc(redraw_thing: proc()) {
 
         ear.text(font, obj.name, 118, 3, colors[15])
 
+        name := strings.builder_make()
+        defer strings.builder_destroy(&name)
+
+        if obj.dest != nil {
+            arena := (^eau.Arena)(obj.dest.arena)
+
+            strings.write_string(&name, "arena ")
+            strings.write_int(&name, arena.idx)
+
+            sname := strings.to_string(name)
+            width := f32(len(sname)) * f32(font.width)/16
+
+            sel := eau.pointaabb({mx,my}, { { 126+117 - width, 2 }, { width, f32(font.height)/16+3 }, .TopLeft, 0 })
+
+            ear.rect(126+117 - width, 2, width, f32(font.height)/16+3, sel? colors[4] : colors[3])
+            ear.rect(126+118 - width, 3, width-2, f32(font.height)/16, sel? colors[3] : colors[2])
+
+            ear.text(font, sname, 126+118 - width, 3, colors[15])
+
+            strings.builder_reset(&name)
+
+            if sel && eaw.is_mouse_pressed(.Left) {
+                selected = arena.idx
+                changed_sel^ = true
+                is_obj_selected = false
+            }
+        }
+
         offy: f32 = 3
         charh := f32(font.height)/16 + 1
         offy += charh
 
         ear.rect(118,offy, 126,1, colors[2])
         offy += 2
-
-        name := strings.builder_make()
-        defer strings.builder_destroy(&name)
 
         if obj.pos2d != nil {
             strings.write_string(&name, "pos:")

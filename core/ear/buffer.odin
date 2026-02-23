@@ -69,7 +69,7 @@ create_buffer :: proc(desc: BufferDesc, db: rawptr, size: u32, arena: ^eau.Arena
     gl.BindBuffer(targ, 0)
 
     if arena != nil do buf.dest = arena->add(buf, proc(p: rawptr){ delete_buffer((^Buffer)(p)) })
-    buf.idx = _hook.add_object({ type = .Buffer, data = buf })
+    buf.idx = _hook.add_object({ type = .Buffer, data = buf, arena = arena, })
     return buf
 }
 

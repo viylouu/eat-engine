@@ -186,7 +186,7 @@ create_pipeline :: proc(desc: PipelineDesc, arena: ^eau.Arena = nil) -> ^Pipelin
     gl.BindVertexArray(0)
 
     if arena != nil do pln.dest = arena->add(pln, proc(p: rawptr){ delete_pipeline((^Pipeline)(p)) })
-    pln.idx = _hook.add_object({ type = .Pipeline, data = pln })
+    pln.idx = _hook.add_object({ type = .Pipeline, data = pln, arena = arena, })
     return pln
 }
 

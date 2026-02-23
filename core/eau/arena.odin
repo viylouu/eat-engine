@@ -13,6 +13,7 @@ Arena :: struct{
 }
 
 Destructor :: struct {
+    arena: ^Arena,
     data: rawptr,
     delete: proc(rawptr),
 }
@@ -27,7 +28,7 @@ create_arena :: proc() -> ^Arena {
         clear = clear_arena,
     })
 
-    arena.idx = _hook.add_object({ type = .Arena, data = arena })
+    arena.idx = _hook.add_object({ type = .Arena, data = arena, arena = nil, })
     return arena
 }
 
@@ -43,6 +44,7 @@ add_to_arena :: proc(arena: ^Arena, data: rawptr, delete: proc(rawptr)) -> ^Dest
     dest := new_clone(Destructor{
         data = data,
         delete = delete,
+        arena = arena,
     })
     append(&arena.dests, dest)
     return dest

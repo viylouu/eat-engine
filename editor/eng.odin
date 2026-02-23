@@ -76,7 +76,7 @@ after :: proc() {
 
         ui.objects(mx,my, &changed_sel)
         ui.types(mx,my, &changed_sel)
-        ui.info()
+        ui.info(mx,my, &changed_sel)
 
         if eaw.is_mouse_pressed(.Left) && !changed_sel do ui.selected = -1
     }

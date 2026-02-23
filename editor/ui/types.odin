@@ -41,7 +41,7 @@ types :: proc(mx,my: f32, changed_sel: ^bool) {
             y += int(font.height)/16 + 2
         }
 
-        sel := eau.pointrect({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-95 }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
+        sel := eau.pointaabb({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-95 }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
 
         ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-95, f32(text_width)+1, f32(font.height)/16+1, sel || (selected == i && !is_obj_selected)? colors[4] : colors[3])
         ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-94, f32(text_width)-1, f32(font.height)/16-1, sel || (selected == i && !is_obj_selected)? colors[3] : colors[2])

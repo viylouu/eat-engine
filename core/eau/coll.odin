@@ -27,7 +27,7 @@ aabb2d :: proc(a: Rectangle, b: Rectangle) -> bool {
            a_tl.pos.y + a_tl.size.y > b_tl.pos.y
 }
 
-pointrect :: proc(p: [2]f32, r: Rectangle) -> bool {
+pointaabb :: proc(p: [2]f32, r: Rectangle) -> bool {
     a := CONV_rect_topleftify(r)
     return p.x < a.pos.x + a.size.x &&
            p.x > a.pos.x &&

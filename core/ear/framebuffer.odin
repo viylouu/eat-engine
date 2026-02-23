@@ -79,7 +79,7 @@ create_framebuffer :: proc(desc: FramebufferDesc, arena: ^eau.Arena = nil) -> ^F
     gl.BindFramebuffer(gl.FRAMEBUFFER, fb.id)
 
     if arena != nil do fb.dest = arena->add(fb, proc(p: rawptr){ delete_framebuffer((^Framebuffer)(p)) })
-    fb.idx = _hook.add_object({ type = .Framebuffer, data = fb })
+    fb.idx = _hook.add_object({ type = .Framebuffer, data = fb, arena = arena, })
     return fb
 }
 

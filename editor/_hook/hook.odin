@@ -10,6 +10,7 @@ objects: [dynamic]Object
 Object :: struct{
     type: Type,
     data: rawptr,
+    arena: rawptr, // cant import eau
 }
 
 Type :: enum {

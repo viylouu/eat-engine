@@ -22,7 +22,7 @@ objects :: proc(mx,my: f32, changed_sel: ^bool) {
 
     item: ^types.TypelessObj_LL = types.init_obj
     for item != nil {
-        sel := eau.pointrect({mx,my}, { { 2, offy }, { 110, charh }, .TopLeft, 0 })
+        sel := eau.pointaabb({mx,my}, { { 2, offy }, { 110, charh }, .TopLeft, 0 })
 
         ear.rect(2,offy, 110,charh, sel || (selected == i && is_obj_selected)? colors[4] : colors[3])
         ear.rect(3,offy+1, 108,charh-2, sel || (selected == i && is_obj_selected)? colors[3] : colors[2])
