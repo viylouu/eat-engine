@@ -8,7 +8,12 @@ import "../../core/eaw"
 
 import "../_hook"
 
+type_scroll: f32
+
 types :: proc(mx,my: f32, changed_sel: ^bool) {
+    if eau.pointaabb({mx,my}, { { 114,360-90 }, { 640-64,94 }, .TopLeft, 0 }) do type_scroll += eaw.mouse_scroll.y * 6
+    if type_scroll > 0 do type_scroll = 0
+
     ear.rect(114,360-94, 640-64,94, colors[2])
     ear.rect(115,361-94, 638-64,92, colors[1])
 
@@ -41,16 +46,20 @@ types :: proc(mx,my: f32, changed_sel: ^bool) {
             y += int(font.height)/16 + 2
         }
 
-        sel := eau.pointaabb({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-95 }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
+        if f32(y)+363-94 + type_scroll > 360-94 {
+            sel := eau.pointaabb({mx,my}, { { f32(x)+117 - f32(text_width)-3, f32(y)+363-95 + type_scroll }, { f32(text_width)+1, f32(font.height)/16+1 }, .TopLeft, 0 })
 
-        ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-95, f32(text_width)+1, f32(font.height)/16+1, sel || (selected == i && !is_obj_selected)? colors[4] : colors[3])
-        ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-94, f32(text_width)-1, f32(font.height)/16-1, sel || (selected == i && !is_obj_selected)? colors[3] : colors[2])
+            ear.rect(f32(x)+117 - f32(text_width)-3, f32(y)+363-95 + type_scroll, f32(text_width)+1, f32(font.height)/16+1, sel || (selected == i && !is_obj_selected)? colors[4] : colors[3])
+            ear.rect(f32(x)+117 - f32(text_width)-2, f32(y)+363-94 + type_scroll, f32(text_width)-1, f32(font.height)/16-1, sel || (selected == i && !is_obj_selected)? colors[3] : colors[2])
 
-        if sel && eaw.is_mouse_pressed(.Left) {
-            selected = i
-            changed_sel^ = true
-            is_obj_selected = false
+            if sel && eaw.is_mouse_pressed(.Left) {
+                selected = i
+                changed_sel^ = true
+                is_obj_selected = false
+            }
         }
+
+        if f32(y)+363-94 + type_scroll > 360 do break
     }
 
     x, y = 0, 0
@@ -67,8 +76,10 @@ types :: proc(mx,my: f32, changed_sel: ^bool) {
             y += int(font.height)/16 + 2
         }
 
-        ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-94, 1, colors[15])
+        if f32(y)+363-94 + type_scroll > 360-94 do ear.text(font, sname, f32(x)+117 - f32(text_width)-2,f32(y)+363-94 + type_scroll, 1, colors[15])
 
         strings.builder_destroy(name)
+
+        if f32(y)+363-94 + type_scroll > 360 do break
     }
 }
