@@ -4,6 +4,7 @@ import "core:fmt"
 
 import "core/eaw"
 import "core/ear"
+//import "core/eaa"
 
 import "editor"
 import "editor/_hook"
@@ -31,12 +32,14 @@ init :: proc(
 
     eaw.init(_width,_height, title, other.vsync.? or_else true)
     ear.init()
+    //eaa.init()
     
     width  = u32(_width)
     height = u32(_height)
 }
 
 stop :: proc() {
+    //eaa.stop()
     ear.stop()
     eaw.stop()
 

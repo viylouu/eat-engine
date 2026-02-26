@@ -18,12 +18,17 @@ clear_rgba :: proc(col: [4]f32) {
 clear_rgb :: proc(col: [3]f32) { clear_rgba([4]f32 { col.r, col.g, col.b, 1 }) }
 
 
-draw :: proc(#any_int vertices: i32, #any_int instances: i32 = 1) {
-    gl.DrawArraysInstanced(gl.TRIANGLES, 0, vertices, instances)
+DrawMode :: enum{
+    Triangles,
+    Lines,
 }
 
-draw_indexed :: proc(indices: []u32, #any_int instances: i32 = 1) {
-    gl.DrawElementsInstanced(gl.TRIANGLES, i32(len(indices)), gl.UNSIGNED_INT, raw_data(indices), instances)
+draw :: proc(#any_int vertices: i32, #any_int instances: i32 = 1, draw_mode: DrawMode = .Triangles) {
+    gl.DrawArraysInstanced(TYPECONV_draw_mode(draw_mode), 0, vertices, instances)
+}
+
+draw_indexed :: proc(indices: []u32, #any_int instances: i32 = 1, draw_mode: DrawMode = .Triangles) {
+    gl.DrawElementsInstanced(TYPECONV_draw_mode(draw_mode), i32(len(indices)), gl.UNSIGNED_INT, raw_data(indices), instances)
 }
 
 
@@ -122,3 +127,16 @@ tex_gray_wh_vec :: proc(tex: ^Texture, pos: [2]f32, size: [2]f32, col: f32) { te
 tex_rgba_vec :: proc(tex: ^Texture, pos: [2]f32, col: [4]f32) { tex_rgba_wh_vec(tex, pos, {f32(tex.width),f32(tex.height)}, col) }
 tex_rgb_vec :: proc(tex: ^Texture, pos: [2]f32, col: [3]f32) { tex_rgb_wh_vec(tex, pos, {f32(tex.width),f32(tex.height)}, col) }
 tex_gray_vec :: proc(tex: ^Texture, pos: [2]f32, col: f32) { tex_gray_wh_vec(tex, pos, {f32(tex.width),f32(tex.height)}, col) }
+
+
+
+@(private)
+TYPECONV_draw_mode :: proc(mode: DrawMode) -> u32 {
+    switch mode {
+    case .Triangles: return gl.TRIANGLES
+    case .Lines: return gl.LINES
+    }
+
+    assert(false)
+    return 0
+}

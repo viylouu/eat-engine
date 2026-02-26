@@ -1,8 +1,8 @@
 package main
 
 import "core:fmt"
-import eat "../../"
 
+import eat "../../"
 import "../../core/ear"
 
 vtx: cstring = `
