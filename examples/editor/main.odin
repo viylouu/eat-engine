@@ -9,7 +9,8 @@ import "../../editor"
 
 MyObject :: struct{
     init: editor.ObjectProc "init",
-    draw: editor.ObjectProc "draw",
+    draw1: editor.ObjectProc "draw",
+    draw2: editor.ObjectProc "draw",
     update: editor.ObjectProc "update",
     stop: editor.ObjectProc "stop",
     sel: editor.ObjectProc "sel",
@@ -22,8 +23,12 @@ myobj_init :: proc(obj: ^editor.Object(MyObject)) {
     fmt.println("init")
 }
 
-myobj_draw :: proc(obj: ^editor.Object(MyObject)) {
-    fmt.println("draw")
+myobj_draw_pass1 :: proc(obj: ^editor.Object(MyObject)) {
+    fmt.println("draw1")
+}
+
+myobj_draw_pass2 :: proc(obj: ^editor.Object(MyObject)) {
+    fmt.println("draw2")
 }
 
 myobj_update :: proc(obj: ^editor.Object(MyObject)) {
@@ -54,7 +59,8 @@ main :: proc() {
 
     obj := editor.create_object(MyObject{ 
             init   = editor.wrap_object_proc(myobj_init),
-            draw   = editor.wrap_object_proc(myobj_draw),
+            draw1  = editor.wrap_object_proc(myobj_draw_pass1),
+            draw2  = editor.wrap_object_proc(myobj_draw_pass2),
             update = editor.wrap_object_proc(myobj_update),
             stop   = editor.wrap_object_proc(myobj_stop),
             sel    = editor.wrap_object_proc(myobj_sel),

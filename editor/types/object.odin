@@ -28,7 +28,7 @@ Object :: struct($T: typeid) {
     tag_funcs: struct{
         init: ^ObjectProc,
         update: ^ObjectProc,
-        draw: ^ObjectProc,
+        draw: [dynamic]^ObjectProc,
         stop: ^ObjectProc,
         sel: ^ObjectProc,
     },
@@ -76,10 +76,10 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
                 assert(func.name == "ObjectProc")
 
                 ptr := (^ObjectProc)(uintptr(obj.data) + str.offsets[i])
-                
+
                 switch str.tags[i] {
                 case "init":   obj.tag_funcs.init = ptr
-                case "draw":   obj.tag_funcs.draw = ptr
+                case "draw":   append(&obj.tag_funcs.draw, ptr)
                 case "update": obj.tag_funcs.update = ptr
                 case "stop":   obj.tag_funcs.stop = ptr
                 case "sel":    obj.tag_funcs.sel = ptr
@@ -180,34 +180,37 @@ wrap_object_proc :: proc($p: proc(^Object($T))) -> ObjectProc {
 init_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        //if init, ok := (^Object(any))(item.obj).tag_funcs.init.?; ok do init(item.obj)
         if init := (^Object(any))(item.obj).tag_funcs.init; init != nil do init.fn(item.obj, init.ctx)
         item = item.next
     }
 }
 
 draw_objects :: proc() {
+    max_draws := 0
+
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        //if draw, ok := (^Object(any))(item.obj).tag_funcs.draw.?; ok do draw(item.obj)
-        if draw := (^Object(any))(item.obj).tag_funcs.draw; draw != nil do draw.fn(item.obj, draw.ctx)
+        if draw := (^Object(any))(item.obj).tag_funcs.draw; len(draw) > 0 {
+            draw[0].fn(item.obj, draw[0].ctx)
+            if len(draw) > max_draws do max_draws = len(draw)
+        }
         item = item.next
+    }
+
+    for i := 1; i < max_draws; i += 1 {
+        item = init_obj
+        for item != nil {
+            if draw := (^Object(any))(item.obj).tag_funcs.draw; len(draw) > 0 do draw[i].fn(item.obj, draw[i].ctx)
+            item = item.next
+        }
     }
 }
 
 update_objects :: proc() {
     item: ^TypelessObj_LL = init_obj
     for item != nil {
-        //if update, ok := (^Object(any))(item.obj).tag_funcs.update.?; ok do update(item.obj)
         if up := (^Object(any))(item.obj).tag_funcs.update; up != nil do up.fn(item.obj, up.ctx)
         item = item.next
     }
 }
 
-/*stop_objects :: proc() {
-    item: ^TypelessObj_LL = init_obj
-    for item != nil {
-        if stop, ok := (^Object(any))(item.obj).tag_funcs.stop.?; ok do stop(item.obj)
-        item = item.next
-    }
-}*/
