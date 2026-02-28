@@ -64,7 +64,7 @@ after :: proc() {
 
     if enabled {
         offx, heightsuby: f32 = 114./640.*f32(eaw.width), 94./360.*f32(eaw.height)
-        if flipped do ear.tex(game_col, offx,f32(eaw.height)-heightsuby, f32(eaw.width)-64,-f32(eaw.height)+heightsuby, 1)
+        if flipped do ear.tex(game_col, offx,f32(eaw.height)-heightsuby, f32(eaw.width)-offx,-f32(eaw.height)+heightsuby, 1)
         else do ear.tex(game_col, offx,0, f32(eaw.width), f32(eaw.height)-heightsuby, 1)
 
         ear.bind_framebuffer(ui.edit_fb)
