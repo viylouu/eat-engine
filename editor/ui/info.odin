@@ -246,6 +246,14 @@ info_obj :: proc(mx,my: f32, changed_sel: ^bool, redraw_thing: proc()) {
             has_funcs = true
         }
 
+        if obj.tag_funcs.sel != nil {
+            if has_funcs do strings.write_rune(&name, ',')
+            strings.write_string(&name, "sel")
+            has_funcs = true
+
+            obj.tag_funcs.sel.fn(obj, obj.tag_funcs.sel.ctx)
+        }
+
         if !has_funcs do strings.write_string(&name, "none")
 
         ear.text(font, strings.to_string(name), 118, offy, colors[15])

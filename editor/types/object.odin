@@ -26,10 +26,11 @@ Object :: struct($T: typeid) {
     pos2d64: ^[2]f64, rot2d64: ^f64,
 
     tag_funcs: struct{
-        init: /*proc(rawptr)*/^ObjectProc,
-        update: /*proc(rawptr)*/^ObjectProc,
-        draw: /*proc(rawptr)*/^ObjectProc,
-        stop: /*proc(rawptr)*/^ObjectProc,
+        init: ^ObjectProc,
+        update: ^ObjectProc,
+        draw: ^ObjectProc,
+        stop: ^ObjectProc,
+        sel: ^ObjectProc,
     },
 }
 
@@ -67,7 +68,7 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
     case: // do nothing
     case runtime.Type_Info_Struct:
         for i in 0..<str.field_count do switch str.tags[i] {
-        case "init", "draw", "update", "stop": 
+        case "init", "draw", "update", "stop", "sel": 
             obj_func := str.types[i]
             #partial switch func in obj_func.variant {
             case: assert(type_of(obj_func.variant) == runtime.Type_Info_Named)
@@ -81,6 +82,7 @@ _create_object_all :: proc(data: $T, name: string, arena: ^eau.Arena) -> ^Object
                 case "draw":   obj.tag_funcs.draw = ptr
                 case "update": obj.tag_funcs.update = ptr
                 case "stop":   obj.tag_funcs.stop = ptr
+                case "sel":    obj.tag_funcs.sel = ptr
                 }
             }
         case "position": 

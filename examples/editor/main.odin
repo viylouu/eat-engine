@@ -12,25 +12,30 @@ MyObject :: struct{
     draw: editor.ObjectProc "draw",
     update: editor.ObjectProc "update",
     stop: editor.ObjectProc "stop",
+    sel: editor.ObjectProc "sel",
 
     pos: [2]f32 "position",
     rot: f32 "rotation",
 }
 
 myobj_init :: proc(obj: ^editor.Object(MyObject)) { 
-    fmt.println("GOOON")
+    fmt.println("init")
 }
 
 myobj_draw :: proc(obj: ^editor.Object(MyObject)) {
-    fmt.println("move")
+    fmt.println("draw")
 }
 
 myobj_update :: proc(obj: ^editor.Object(MyObject)) {
-    fmt.println("eyeballs")
+    fmt.println("update")
 }
 
 myobj_stop :: proc(obj: ^editor.Object(MyObject)) {
-    fmt.println("aww")
+    fmt.println("stop")
+}
+
+myobj_sel :: proc(obj: ^editor.Object(MyObject)) {
+    fmt.println("selected!")
 }
 
 
@@ -52,6 +57,7 @@ main :: proc() {
             draw   = editor.wrap_object_proc(myobj_draw),
             update = editor.wrap_object_proc(myobj_update),
             stop   = editor.wrap_object_proc(myobj_stop),
+            sel    = editor.wrap_object_proc(myobj_sel),
 
             pos = { 32,64 },
             rot = 3.14159/2,
