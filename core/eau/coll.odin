@@ -41,7 +41,7 @@ aabb3d :: proc(min1, max1, min2, max2: [3]f32) -> bool {
            min1.y < max2.y &&
            max1.y > min2.y &&
            min1.z < max2.z &&
-           max2.z > min2.z
+           max1.z > min2.z
 }
 
 gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
