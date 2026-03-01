@@ -250,8 +250,6 @@ info_obj :: proc(mx,my: f32, changed_sel: ^bool, redraw_thing: proc()) {
             if has_funcs do strings.write_rune(&name, ',')
             strings.write_string(&name, "sel")
             has_funcs = true
-
-            obj.tag_funcs.sel.fn(obj, obj.tag_funcs.sel.ctx)
         }
 
         if !has_funcs do strings.write_string(&name, "none")

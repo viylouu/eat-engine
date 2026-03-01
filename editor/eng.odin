@@ -63,6 +63,30 @@ after :: proc() {
     else do ear.tex(game_col, 0,0, f32(eaw.width), f32(eaw.height), 1)
 
     if enabled {
+        if ui.selected != -1 && ui.is_obj_selected {
+            i := 0
+            item := types.init_obj
+            for item != nil {
+                if i != ui.selected {
+                    item = item.next
+                    i += 1
+                    continue
+                }
+
+                obj := (^types.Object(any))(item.obj)
+
+                ear.set_default_framebuffer(game_fb)
+                ear.bind_framebuffer(nil)
+
+                if obj.tag_funcs.sel != nil do obj.tag_funcs.sel.fn(obj, obj.tag_funcs.sel.ctx)
+
+                ear.set_default_framebuffer(nil)
+                ear.bind_framebuffer(nil)
+
+                break
+            }
+        }
+
         offx, heightsuby: f32 = 114./640.*f32(eaw.width), 94./360.*f32(eaw.height)
         if flipped do ear.tex(game_col, offx,f32(eaw.height)-heightsuby, f32(eaw.width)-offx,-f32(eaw.height)+heightsuby, 1)
         else do ear.tex(game_col, offx,0, f32(eaw.width), f32(eaw.height)-heightsuby, 1)
