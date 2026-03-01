@@ -35,6 +35,15 @@ pointaabb :: proc(p: [2]f32, r: Rectangle) -> bool {
            p.y > a.pos.y
 }
 
+aabb3d :: proc(min1, max1, min2, max2: [3]f32) -> bool {
+    return min1.x < max2.x &&
+           max1.x > min2.x &&
+           min1.y < max2.y &&
+           max1.y > min2.y &&
+           min1.z < max2.z &&
+           max2.z > min2.z
+}
+
 gjk3d :: proc(hull1: [][3]f32, hull2: [][3]f32) -> bool {
     res, simp := gjk3d_simplex(hull1, hull2)
     if res do delete(simp)
